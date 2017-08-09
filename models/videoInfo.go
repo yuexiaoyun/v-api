@@ -3,8 +3,9 @@ package models
 import (
 	// "github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
-	// "strconv"
+	"strconv"
 	// "time"
+	"fmt"
 )
 
 func init() {
@@ -72,4 +73,13 @@ func getVideoInfo(rawVideo RawVideoInfo) {
 		video_tags        string
 	}
 	*/
+}
+
+func GetByVid(vid string) ShowedInfo {
+	//TODO 缓存
+	video := GetRawVideo(vid)
+
+	rawUser := GetRawUser(video.UserId)
+	fmt.Println(rawUser)
+	return
 }

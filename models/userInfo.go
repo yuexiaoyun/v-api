@@ -10,7 +10,7 @@ func init() {
 
 }
 
-func GetRawUser(uid string) []orm.Params {
+func GetRawUser(uid int) []orm.Params {
 	var rawUser []orm.Params
 	o := orm.NewOrm()
 	// num, err := o.Raw("SELECT u.vid, u.yyuid, v.user_id, u.video_title, u.video_name, u.source_name, u.channel, u.upload_start_time, u.duration, u.cover, v.video_play_sum, v.video_support FROM  upload_list u LEFT JOIN v_video v ON u.vid = v.vid WHERE u.vid=? AND u.status != -9 AND (u.can_play=1 or u.can_play=4)  LIMIT 1", vid).ValuesList(&lists)

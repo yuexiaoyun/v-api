@@ -4,9 +4,9 @@ import (
 	/*"apiproject/models"
 	"encoding/json"*/
 	"apiproject/models"
+	"context"
 	"fmt"
 	"github.com/astaxie/beego"
-	"context"
 )
 
 // Operations about object
@@ -34,11 +34,25 @@ func (this *VideoController) TestRouter() {
 // @Title test
 // @Description Logs out current logged in user session
 // @Success 200 {string} logout success
-// @router /test [get]
+// @router /shenjtlive [get]
 func (this *VideoController) ShenJTLive() {
 	versionCode := this.Input().Get("ver")
 
 	yyuid := this.Input().Get("yyuid")
 	limit := this.Input().Get("limit")
 	page := this.Input().Get("page")
+
+}
+
+// @Title test
+// @Description Logs out current logged in user session
+// @Success 200 {string} logout success
+// @router /shenjtdetail [get]
+func (this *VideoController) ShenJTLive() {
+	versionCode := this.Input().Get("ver")
+
+	vid := this.Input().Get("vid")
+
+	models.GetByVid(vid)
+
 }
