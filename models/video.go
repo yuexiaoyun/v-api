@@ -95,7 +95,7 @@ func GetVideoByUid(yyuid string,limit int,page int) {
 
 
 	vids,ret := arrayOperations.Union(liveVids,diyVids,uploadVids)
-	if err == "ok"{
+	if ret == "ok"{
 
 	}
 
