@@ -25,7 +25,7 @@
                 "responses": {
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/.Object"
+                            "$ref": "#/definitions/models.Object"
                         }
                     },
                     "403": {
@@ -46,7 +46,7 @@
                         "description": "The object content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Object"
+                            "$ref": "#/definitions/models.Object"
                         }
                     }
                 ],
@@ -79,7 +79,7 @@
                 "responses": {
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/.Object"
+                            "$ref": "#/definitions/models.Object"
                         }
                     },
                     "403": {
@@ -107,14 +107,14 @@
                         "description": "The body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Object"
+                            "$ref": "#/definitions/models.Object"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/.Object"
+                            "$ref": "#/definitions/models.Object"
                         }
                     },
                     "403": {
@@ -157,7 +157,7 @@
                 "responses": {
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 }
@@ -175,7 +175,7 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -269,7 +269,7 @@
                 "responses": {
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "403": {
@@ -297,14 +297,14 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
                         "schema": {
-                            "$ref": "#/definitions/.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "403": {
@@ -336,14 +336,112 @@
                     }
                 }
             }
+        },
+        "/video/shenjtdetail": {
+            "get": {
+                "tags": [
+                    "video"
+                ],
+                "description": "获取视频详情",
+                "operationId": "VideoController.ShenJTDetail",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "vid",
+                        "description": "vid",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} json success-视频详情"
+                    }
+                }
+            }
+        },
+        "/video/shenjtlive": {
+            "get": {
+                "tags": [
+                    "video"
+                ],
+                "description": "Logs out current logged in user session",
+                "operationId": "VideoController.ShenJTLive",
+                "responses": {
+                    "200": {
+                        "description": "{string} logout success"
+                    }
+                }
+            }
+        },
+        "/video/test": {
+            "get": {
+                "tags": [
+                    "video"
+                ],
+                "description": "Logs out current logged in user session",
+                "operationId": "VideoController.TestRouter",
+                "responses": {
+                    "200": {
+                        "description": "{string} logout success"
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        ".Object": {
-            "type": "object"
+        "models.Object": {
+            "title": "Object",
+            "type": "object",
+            "properties": {
+                "ObjectId": {
+                    "type": "string"
+                },
+                "PlayerName": {
+                    "type": "string"
+                },
+                "Score": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
         },
-        ".User": {
-            "type": "object"
+        "models.Profile": {
+            "title": "Profile",
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "Age": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Email": {
+                    "type": "string"
+                },
+                "Gender": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "title": "User",
+            "type": "object",
+            "properties": {
+                "Id": {
+                    "type": "string"
+                },
+                "Password": {
+                    "type": "string"
+                },
+                "Profile": {
+                    "$ref": "#/definitions/models.Profile"
+                },
+                "Username": {
+                    "type": "string"
+                }
+            }
         }
     },
     "tags": [
@@ -354,6 +452,10 @@
         {
             "name": "user",
             "description": "Operations about Users\n"
+        },
+        {
+            "name": "video",
+            "description": "Operations about Video\n"
         }
     ]
 }

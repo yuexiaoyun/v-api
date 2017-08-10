@@ -4,16 +4,30 @@ import (
 	"github.com/adam-hanna/arrayOperations"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"fmt"
+	//"strings"
 )
 
 func init() {
 
 }
 
+
+type VideoDefinition struct{
+	Size string `json:"size"`
+	Width string `json:"width"`
+	Height string `json:"height"`
+	Format string `json:"format"`
+	Duration string `json:"duration"`
+	Definition string `json:"definition"`
+	Url string `json:"url"`
+	M3u8 string `json:"m3u8"`
+}
+
 type RawVideoInfo struct {
-	Vid             int64
-	Yyuid           int64
-	UserId          int64
+	Vid             int64 `json:"vid"`
+	Yyuid           int64 `json:"yyuid"`
+	UserId          int64 `json:"user_id"`
 	VideoTitle      string
 	VideoName       string
 	SourceName      string
@@ -97,8 +111,32 @@ func GetVideoByUid(yyuid string, limit int, page int) {
 	uploadVids := GetVidsByUid(yyuid)
 
 	vids, ret := arrayOperations.Union(liveVids, diyVids, uploadVids)
-	if ret == "ok" {
-
+	if ret {
+		fmt.Println(vids)
 	}
 
+}
+
+func GetVideoDefinitions(vid int64,needAll bool,order string) /*[]VideoDefinition*/ {
+	//TODO 缓存
+	/*client := &http.Client{}
+	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"),vid,order)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		// handle error
+	}
+	req.Header.Set("Host", beego.AppConfig.String("videoTranscodeHost"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Cookie", "name=anny")
+
+	resp, err := client.Do(req)
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+
+	fmt.Println(string(body))*/
 }

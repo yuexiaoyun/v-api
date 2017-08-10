@@ -113,8 +113,8 @@ func init() {
 
 	beego.GlobalControllerRouter["apiproject/controllers:VideoController"] = append(beego.GlobalControllerRouter["apiproject/controllers:VideoController"],
 		beego.ControllerComments{
-			Method: "TestRouter",
-			Router: `/test`,
+			Method: "ShenJTDetail",
+			Router: `/shenjtdetail`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -122,6 +122,14 @@ func init() {
 	beego.GlobalControllerRouter["apiproject/controllers:VideoController"] = append(beego.GlobalControllerRouter["apiproject/controllers:VideoController"],
 		beego.ControllerComments{
 			Method: "ShenJTLive",
+			Router: `/shenjtlive`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["apiproject/controllers:VideoController"] = append(beego.GlobalControllerRouter["apiproject/controllers:VideoController"],
+		beego.ControllerComments{
+			Method: "TestRouter",
 			Router: `/test`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
