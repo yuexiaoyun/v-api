@@ -143,6 +143,12 @@ func getVideoInfo(rawVideo RawVideoInfo) VideoInfo{
 		UserNickname:retUserInfo.user_nickname,
 		UserHomepage:retUserInfo.user_homepage,
 	}
+	videoDefinitions,status := GetVideoDefinitions(rawVideo.Vid,false,"1000,1300,350,yuanhua")
+	if status == "ok"{
+		videoInfo.VideoDefinitions = videoDefinitions
+	}else {
+		videoInfo.VideoDefinitions = []VideoDefinition{}
+	}
 	return videoInfo
 }
 

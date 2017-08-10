@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"strconv"
-	"github.com/astaxie/beego/httplib"
-	"encoding/json"
 )
 
 // Operations about Video
@@ -23,7 +21,9 @@ func (this *VideoController) TestRouter() {
 	vid := this.Input().Get("vid")
 	vidInt,_ := strconv.Atoi(vid)
 
-
+	videoDefinitions ,status := models.GetVideoDefinitions(int64(vidInt),false,"1000,1300,350,yuanhua")
+	fmt.Println(status)
+	fmt.Println(videoDefinitions)
 
 	/*client := &http.Client{}
 	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"),vidInt,"1000,1300,350,yuanhua")
@@ -45,21 +45,6 @@ func (this *VideoController) TestRouter() {
 
 	fmt.Println(string(body))
 */
-	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"),vidInt,"1000,1300,350,yuanhua")
-	req := httplib.Get(url)
-	fmt.Println(url)
-	fmt.Println(beego.AppConfig.String("videoTranscodeHost"))
-	req.Debug(true)
-
-	str, err := req.String()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-
-	fmt.Println(str)
-
-
 
 
 	/*models.GetTagByVid(int64(vidInt))

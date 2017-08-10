@@ -5,7 +5,9 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
-	//"strings"
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/httplib"
+	"github.com/tidwall/gjson"
 )
 
 func init() {
@@ -117,26 +119,32 @@ func GetVideoByUid(yyuid string, limit int, page int) {
 
 }
 
-func GetVideoDefinitions(vid int64,needAll bool,order string) /*[]VideoDefinition*/ {
+func GetVideoDefinitions(vid int64,needAll bool,order string) ([]VideoDefinition,string) {
 	//TODO 缓存
-	/*client := &http.Client{}
 	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"),vid,order)
-	req, err := http.NewRequest("GET", url, nil)
+	req := httplib.Get(url)
+	req.Debug(true)
+	ret, err := req.String()
 	if err != nil {
-		// handle error
+		fmt.Println(err)
 	}
-	req.Header.Set("Host", beego.AppConfig.String("videoTranscodeHost"))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Cookie", "name=anny")
-
-	resp, err := client.Do(req)
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		// handle error
+	code := gjson.Get(ret,"code")
+	data := gjson.Get(ret,"result")
+	var videoDefinitions []VideoDefinition
+	if code.String() == "1"{
+		data.ForEach(func(key, value gjson.Result) bool {
+			var videoDefinition VideoDefinition
+			gjson.Unmarshal([]byte(value.String()),&videoDefinition)
+			videoDefinitions = append(videoDefinitions,videoDefinition)
+			return true // keep iterating
+		})
+		if len(videoDefinitions) != 0 {
+			return videoDefinitions,"Ok"
+		}else{
+			return videoDefinitions,"no data"
+		}
+	}else{
+		return videoDefinitions,"no data"
 	}
 
-	fmt.Println(string(body))*/
 }
