@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"v-api/models"
 	"time"
+	"encoding/json"
 )
 
 // Operations about Video
@@ -18,6 +19,30 @@ type VideoController struct {
 // @router /test [get]
 func (this *VideoController) TestRouter() {
 	//this.Ctx.WriteString("测试路由")
+	type user struct{
+		Name string
+		Age int
+	}
+
+	userItem := user{
+		"test",
+		10,
+	}
+
+	testItem := user{}
+	cacheHandler,err := models.GetCacheHandler()
+	if err == nil {
+		jsonData,_ := json.Marshal(userItem)
+		cacheHandler.Put("data",jsonData,10 * time.Second)
+		fromCacheByte := cacheHandler.Get("data").([]byte)
+		unmarshalErr := json.Unmarshal(fromCacheByte,&testItem)
+		if unmarshalErr != nil {
+			beego.Info(testItem)
+		}else {
+			beego.Info(testItem)
+		}
+
+	}
 	vid := this.Input().Get("vid")
 	vidInt, _ := strconv.Atoi(vid)
 
@@ -85,11 +110,22 @@ func (this *VideoController) ShenJTDetail() {
 	vid := this.Input().Get("vid")
 	videoInfo := models.GetByVid(vid)
 	cacheHandler,err := models.GetCacheHandler()
-	if err != nil {
-		cacheHandler.Put("data",videoInfo,10 * time.Second)
-		test := cacheHandler.Get("data")
-		beego.Info("from cache:")
-		beego.Info(test)
+	if err == nil {
+
+		jsonData,_ := json.Marshal(videoInfo)
+		cacheHandler.Put("data",jsonData,10 * time.Second)
+
+		fromCacheByte := cacheHandler.Get("data").([]byte)
+
+		var fromCacheVideoInfo models.VideoInfo
+		unmarshalErr := json.Unmarshal(fromCacheByte,&fromCacheVideoInfo)
+		if unmarshalErr == nil{
+			beego.Info("from cache:")
+			beego.Info(fromCacheVideoInfo)
+		}else{
+			beego.Info("from cache error:")
+			beego.Info(unmarshalErr)
+		}
 	}
 	this.Data["json"] = videoInfo
 	this.ServeJSON()

@@ -193,9 +193,7 @@ func GetByVid(vid string) VideoInfo {
 	//TODO 缓存
 	rawVideo := GetRawVideo(vid)
 	videoInfo := getVideoInfo(rawVideo)
-
-	fmt.Println(videoInfo)
-
+	//fmt.Println(videoInfo)
 	/*rawUser := GetRawUser(int(video.Yyuid))
 	fmt.Println(rawUser)*/
 	return videoInfo
