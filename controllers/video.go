@@ -30,6 +30,8 @@ func (this *VideoController) TestRouter() {
 	}
 
 	testItem := user{}
+
+	models.SetDataIntoCache("data",video)
 	cacheHandler,err := models.GetCacheHandler()
 	if err == nil {
 		jsonData,_ := json.Marshal(userItem)
@@ -109,24 +111,23 @@ func (this *VideoController) ShenJTDetail() {
 
 	vid := this.Input().Get("vid")
 	videoInfo := models.GetByVid(vid)
+
+	models.SetDataIntoCache("data",videoInfo,10)
 	cacheHandler,err := models.GetCacheHandler()
 	if err == nil {
-
-		jsonData,_ := json.Marshal(videoInfo)
-		cacheHandler.Put("data",jsonData,10 * time.Second)
-
-		fromCacheByte := cacheHandler.Get("data").([]byte)
-
-		var fromCacheVideoInfo models.VideoInfo
-		unmarshalErr := json.Unmarshal(fromCacheByte,&fromCacheVideoInfo)
-		if unmarshalErr == nil{
-			beego.Info("from cache:")
-			beego.Info(fromCacheVideoInfo)
-		}else{
-			beego.Info("from cache error:")
-			beego.Info(unmarshalErr)
-		}
+		models.SetDataIntoCache(videoInfo,10,cacheHandler)
 	}
+
+	fromCacheByte := cacheHandler.Get("data").([]byte)
+	var testItem models.VideoInfo
+	unmarshalErr := json.Unmarshal(fromCacheByte,&testItem)
+	if unmarshalErr != nil {
+		beego.Info(nil)
+	}else {
+		beego.Info(testItem)
+	}
+
+
 	this.Data["json"] = videoInfo
 	this.ServeJSON()
 	/*channel := this.Input().Get("channel")

@@ -6,6 +6,9 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/astaxie/beego/cache"
+	"encoding/json"
+	"time"
+	"beeblog/models"
 )
 
 func RegisterDB() {
@@ -26,3 +29,16 @@ func RegisterDB() {
 func GetCacheHandler() (adapter cache.Cache, err error){
 	return cache.NewCache("memcache", `{"conn":"`+beego.AppConfig.String("memcache_host_1")+`:`+beego.AppConfig.String("memcache_port_1")+`;`+beego.AppConfig.String("memcache_host_2")+`:`+beego.AppConfig.String("memcache_port_2")+`"}`)
 }
+
+func SetDataIntoCache(key string,data interface{},timout int){
+	cacheHandler,err := GetCacheHandler()
+	if err == nil {
+		jsonData,_ := json.Marshal(data)
+		cacheHandler.Put(key,jsonData,timout * time.Second)
+	}else {
+		beego.Error("缓存设置数据出错")
+		beego.Error(err)
+	}
+
+}
+
