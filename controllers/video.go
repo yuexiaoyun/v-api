@@ -4,6 +4,8 @@ import (
 	"github.com/astaxie/beego"
 	"strconv"
 	"v-api/models"
+	"encoding/json"
+	"time"
 )
 
 // Operations about Video
@@ -83,7 +85,13 @@ func (this *VideoController) ShenJTDetail() {
 
 	vid := this.Input().Get("vid")
 	videoInfo := models.GetByVid(vid)
-	beego.Info(videoInfo)
+	cacheHandler,err := models.GetCacheHandler()
+	if err != nil {
+		cacheHandler.Put("data",videoInfo,10 * time.Second)
+		test := cacheHandler.Get("data")
+		beego.Info("from cache:")
+		beego.Info(test)
+	}
 	this.Data["json"] = videoInfo
 	this.ServeJSON()
 	/*channel := this.Input().Get("channel")

@@ -5,6 +5,8 @@ import (
 	"github.com/astaxie/beego/orm"
 	"v-api/models"
 	_ "v-api/routers"
+	_ "github.com/astaxie/beego/cache/memcache"
+
 )
 
 func init() {
@@ -19,5 +21,6 @@ func main() {
 	}
 	beego.BConfig.WebConfig.DirectoryIndex = true
 	beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+
 	beego.Run()
 }

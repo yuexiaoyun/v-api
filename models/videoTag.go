@@ -26,7 +26,7 @@ func GetTagByVid(vid int64) ([]VideoTag) {
 	var videoTag []VideoTag
 	o := orm.NewOrm()
 	qs := o.QueryTable("v_huya_video_tags")
-	qs.Filter("vid", vid)
+	qs = qs.Filter("vid", vid)
 	qs.All(&videoTag)
 	return videoTag
 

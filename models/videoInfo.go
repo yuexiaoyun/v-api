@@ -170,6 +170,10 @@ func getVideoTags(rawVideo RawVideoInfo) string {
 	}
 }
 
+
+func getVideoPlayNum(rawVideo RawVideoInfo) int{
+	return 0
+}
 func getUserInfo(uid int64) RetUserInfo {
 	rawUser, status := GetRawUser(uid)
 	var retUserInfo RetUserInfo = RetUserInfo{}
