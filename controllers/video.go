@@ -31,7 +31,7 @@ func (this *VideoController) TestRouter() {
 
 	testItem := user{}
 
-	models.SetDataIntoCache("data",video)
+	//models.SetDataIntoCache("data",video)
 	cacheHandler,err := models.GetCacheHandler()
 	if err == nil {
 		jsonData,_ := json.Marshal(userItem)
@@ -113,10 +113,9 @@ func (this *VideoController) ShenJTDetail() {
 	videoInfo := models.GetByVid(vid)
 
 	models.SetDataIntoCache("data",videoInfo,10)
-	cacheHandler,err := models.GetCacheHandler()
-	if err == nil {
-		models.SetDataIntoCache(videoInfo,10,cacheHandler)
-	}
+	cacheHandler,_ := models.GetCacheHandler()
+
+
 
 	fromCacheByte := cacheHandler.Get("data").([]byte)
 	var testItem models.VideoInfo
