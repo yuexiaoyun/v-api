@@ -8,22 +8,22 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
 	"github.com/tidwall/gjson"
+	"regexp"
 )
 
 func init() {
 
 }
 
-
-type VideoDefinition struct{
-	Size string `json:"size"`
-	Width string `json:"width"`
-	Height string `json:"height"`
-	Format string `json:"format"`
-	Duration string `json:"duration"`
+type VideoDefinition struct {
+	Size       string `json:"size"`
+	Width      string `json:"width"`
+	Height     string `json:"height"`
+	Format     string `json:"format"`
+	Duration   string `json:"duration"`
 	Definition string `json:"definition"`
-	Url string `json:"url"`
-	M3u8 string `json:"m3u8"`
+	Url        string `json:"url"`
+	M3u8       string `json:"m3u8"`
 }
 
 type RawVideoInfo struct {
@@ -118,33 +118,80 @@ func GetVideoByUid(yyuid string, limit int, page int) {
 	}
 
 }
-
-func GetVideoDefinitions(vid int64,needAll bool,order string) ([]VideoDefinition,string) {
+//获取转码信息：视频播放地址，分别率，宽高，大小等信息
+func GetVideoDefinitions(vid int64, needAll bool, order string) ([]VideoDefinition, string) {
 	//TODO 缓存
-	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"),vid,order)
+	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"), vid, order)
 	req := httplib.Get(url)
 	req.Debug(true)
 	ret, err := req.String()
 	if err != nil {
 		fmt.Println(err)
 	}
-	code := gjson.Get(ret,"code")
-	data := gjson.Get(ret,"result")
+	code := gjson.Get(ret, "code")
+	data := gjson.Get(ret, "result")
 	var videoDefinitions []VideoDefinition
-	if code.String() == "1"{
+	if code.String() == "1" {
 		data.ForEach(func(key, value gjson.Result) bool {
 			var videoDefinition VideoDefinition
-			gjson.Unmarshal([]byte(value.String()),&videoDefinition)
-			videoDefinitions = append(videoDefinitions,videoDefinition)
+			gjson.Unmarshal([]byte(value.String()), &videoDefinition)
+			reg := regexp.MustCompile(`(http://huya-w)(.*)(.huya.com)(.*)`)
+			result := fmt.Sprint(reg.ReplaceAllString(videoDefinition.Url, "${1}10${3}${4}"))
+			videoDefinition.Url = result
+			videoDefinitions = append(videoDefinitions, videoDefinition)
 			return true // keep iterating
 		})
 		if len(videoDefinitions) != 0 {
-			return videoDefinitions,"Ok"
-		}else{
-			return videoDefinitions,"no data"
+			if !needAll {
+				var videoDefinition VideoDefinition
+				videoDefinition = videoDefinitions[0]
+				for _, videoDefinitionItem := range videoDefinitions {
+					if videoDefinitionItem.Format == "m3u8" && videoDefinitionItem.Definition == videoDefinition.Definition {
+						videoDefinition.M3u8 = videoDefinitionItem.Url
+					}
+				}
+				return []VideoDefinition{videoDefinition}, "ok"
+			}
+			return videoDefinitions, "ok"
+		} else {
+			return videoDefinitions, "no data"
 		}
-	}else{
-		return videoDefinitions,"no data"
+	} else {
+		return videoDefinitions, "no data"
 	}
+}
 
+func GetVideoCategory(channel string) string {
+	/*categoryMap := make(map[string]string,10)
+	categoryMap["vhuyalol"] = "英雄联盟"
+	categoryMap["vhuyawzry"] = "王者荣耀"
+	categoryMap["vhuyaball"] = "球球大作战"
+	categoryMap["vhuyacfm"] = "CFM"
+	categoryMap["vhuyamc"] = "我的世界"
+	categoryMap["vhuyadnf"] = "地下城与勇士"
+	categoryMap["vhuyablizzard"] = "暴雪游戏"
+	categoryMap["vhuyayule"] = "娱乐"
+	categoryMap["vhuyapc"] = "单机游戏"*/
+	switch channel {
+	case "vhuyalol":
+		return "英雄联盟"
+	case "vhuyawzry":
+		return "王者荣耀"
+	case "vhuyaball":
+		return "球球大作战"
+	case "vhuyacfm":
+		return "CFM"
+	case "vhuyamc":
+		return "我的世界"
+	case "vhuyadnf":
+		return "地下城与勇士"
+	case "vhuyablizzard":
+		return "暴雪游戏"
+	case "vhuyayule":
+		return "娱乐"
+	case "vhuyapc":
+		return "单机游戏"
+	default:
+		return ""
+	}
 }

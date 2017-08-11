@@ -1,10 +1,9 @@
 package controllers
 
 import (
-	"apiproject/models"
-	"fmt"
 	"github.com/astaxie/beego"
 	"strconv"
+	"v-api/models"
 )
 
 // Operations about Video
@@ -17,14 +16,13 @@ type VideoController struct {
 // @Success 200 {string} logout success
 // @router /test [get]
 func (this *VideoController) TestRouter() {
-	this.Ctx.WriteString("测试路由")
+	//this.Ctx.WriteString("测试路由")
 	vid := this.Input().Get("vid")
-	vidInt,_ := strconv.Atoi(vid)
+	vidInt, _ := strconv.Atoi(vid)
 
-	videoDefinitions ,status := models.GetVideoDefinitions(int64(vidInt),false,"1000,1300,350,yuanhua")
-	fmt.Println(status)
-	fmt.Println(videoDefinitions)
-
+	videoDefinitions, _ := models.GetVideoDefinitions(int64(vidInt), false, "1000,1300,350,yuanhua")
+	this.Data["json"] = videoDefinitions
+	this.ServeJSON()
 	/*client := &http.Client{}
 	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"),vidInt,"1000,1300,350,yuanhua")
 	fmt.Println(url)
@@ -44,8 +42,7 @@ func (this *VideoController) TestRouter() {
 	}
 
 	fmt.Println(string(body))
-*/
-
+	*/
 
 	/*models.GetTagByVid(int64(vidInt))
 

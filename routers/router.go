@@ -8,22 +8,12 @@
 package routers
 
 import (
-	"apiproject/controllers"
 	"github.com/astaxie/beego"
+	"v-api/controllers"
 )
 
 func init() {
-	ns := beego.NewNamespace("/v1",
-		beego.NSNamespace("/object",
-			beego.NSInclude(
-				&controllers.ObjectController{},
-			),
-		),
-		beego.NSNamespace("/user",
-			beego.NSInclude(
-				&controllers.UserController{},
-			),
-		),
+	ns := beego.NewNamespace("/v-api",
 		beego.NSNamespace("/video",
 			beego.NSInclude(
 				&controllers.VideoController{},

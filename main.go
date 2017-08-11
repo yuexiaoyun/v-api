@@ -1,10 +1,10 @@
 package main
 
 import (
-	"apiproject/models"
-	_ "apiproject/routers"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"v-api/models"
+	_ "v-api/routers"
 )
 
 func init() {
