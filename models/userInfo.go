@@ -44,7 +44,11 @@ func GetRawUser(uid int64) (UserInfo, string) {
 			var userChannel string
 			userGameType := userInfo["user_game_type"]
 			if str, ok := userGameType.(string); ok {
-				userChannel = strings.Split(str, ",")[1]
+				if strings.Index(str,",") >= 0{
+					userChannel = strings.Split(str, ",")[1]
+				}else{
+					userChannel = ""
+				}
 			} else {
 				userChannel = ""
 			}
