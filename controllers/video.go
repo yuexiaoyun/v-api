@@ -59,7 +59,8 @@ func (this *VideoController) TestRouter() {
 	}
 
 
-
+	videoInfo := models.GetRawVideo(vid)
+	fmt.Println(videoInfo)
 
 	videoDefinitions, _ := models.GetVideoDefinitions(int64(vidInt), false, "1000,1300,350,yuanhua")
 	this.Data["json"] = videoDefinitions
