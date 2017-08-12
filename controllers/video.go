@@ -103,35 +103,26 @@ func (this *VideoController) ShenJTLive() {
 // @Success 200 {string} json success-视频详情
 // @router /shenjtdetail [get]
 func (this *VideoController) ShenJTDetail() {
-	//versionCode := this.Input().Get("ver")
-
-	/*vid := this.Input().Get("vid")
-
-	models.GetByVid(vid)*/
-
+	cacheKye := "video_detail_"
 	vid := this.Input().Get("vid")
-	videoInfo := models.GetByVid(vid)
-
-	models.SetDataIntoCache("data",videoInfo,10)
+	beego.Info("神镜头获取视频详情接口["+vid+"]")
 	cacheHandler,_ := models.GetCacheHandler()
-
-
-
-	fromCacheByte := cacheHandler.Get("data").([]byte)
-	var testItem models.VideoInfo
-	unmarshalErr := json.Unmarshal(fromCacheByte,&testItem)
+	fromCacheByte := cacheHandler.Get(cacheKye).([]byte)
+	var videoInfo models.VideoInfo
+	unmarshalErr := json.Unmarshal(fromCacheByte,&videoInfo)
 	if unmarshalErr != nil {
 		beego.Info(nil)
-	}else {
-		beego.Info(testItem)
+		videoInfo = models.GetByVid(vid)
+		beego.Info("数据从表读取：")
+		beego.Info(videoInfo)
+		//判断结构vid是否为空，不空，设置缓存
+		if videoInfo.Vid != "" {
+			models.SetDataIntoCache(cacheKye+videoInfo.Vid,videoInfo,60*3)
+		}
+	}else{
+		beego.Info("数据从缓存读取：")
+		beego.Info(videoInfo)
 	}
-
-
 	this.Data["json"] = videoInfo
 	this.ServeJSON()
-	/*channel := this.Input().Get("channel")
-	fmt.Println("channel:",channel)
-	game,status := models.GetGameInfoByChannel(channel)
-	fmt.Println("status:",status)
-	fmt.Println("Game:",game)*/
 }
