@@ -115,25 +115,8 @@ func (this *VideoController) ShenJTDetail() {
 	}
 	beego.Info("神镜头获取视频详情接口["+vid+"]")
 	var videoInfo models.VideoInfo
-	cacheHandler,_ := models.GetCacheHandler()
-	if cacheHandler.IsExist(cacheKye) {
-		fromCacheByte := cacheHandler.Get(cacheKye).([]byte)
-		unmarshalErr := json.Unmarshal(fromCacheByte,&videoInfo)
-		if unmarshalErr != nil {
-			beego.Info("解析有问题")
-			beego.Info(nil)
-			videoInfo = models.GetByVid(vid)
-			beego.Info("数据从表读取：")
-			beego.Info(videoInfo)
-			//判断结构vid是否为空，不空，设置缓存
-			if videoInfo.Vid != "" {
-				models.SetDataIntoCache(cacheKye,videoInfo,60*3)
-			}
-		}else{
-			beego.Info("数据从缓存读取：")
-			beego.Info(videoInfo)
-		}
-	}else {
+	cacheHandler,errMsg := models.GetCacheHandler()
+	if errMsg != nil {
 		videoInfo = models.GetByVid(vid)
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
@@ -141,8 +124,34 @@ func (this *VideoController) ShenJTDetail() {
 		if videoInfo.Vid != "" {
 			models.SetDataIntoCache(cacheKye,videoInfo,60*3)
 		}
+	}else{
+		if cacheHandler.IsExist(cacheKye) {
+			fromCacheByte := cacheHandler.Get(cacheKye).([]byte)
+			unmarshalErr := json.Unmarshal(fromCacheByte,&videoInfo)
+			if unmarshalErr != nil {
+				beego.Info("解析有问题")
+				beego.Info(nil)
+				videoInfo = models.GetByVid(vid)
+				beego.Info("数据从表读取：")
+				beego.Info(videoInfo)
+				//判断结构vid是否为空，不空，设置缓存
+				if videoInfo.Vid != "" {
+					models.SetDataIntoCache(cacheKye,videoInfo,60*3)
+				}
+			}else{
+				beego.Info("数据从缓存读取：")
+				beego.Info(videoInfo)
+			}
+		}else {
+			videoInfo = models.GetByVid(vid)
+			beego.Info("数据从表读取：")
+			beego.Info(videoInfo)
+			//判断结构vid是否为空，不空，设置缓存
+			if videoInfo.Vid != "" {
+				models.SetDataIntoCache(cacheKye,videoInfo,60*3)
+			}
+		}
 	}
-
 	this.Data["json"] = videoInfo
 	this.ServeJSON()
 }
