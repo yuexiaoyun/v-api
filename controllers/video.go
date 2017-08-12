@@ -49,9 +49,16 @@ func (this *VideoController) TestRouter() {
 	vid := this.Input().Get("vid")
 	vidInt, _ := strconv.Atoi(vid)
 
-	testMd5String := "ceshi"
+	testMd5String := "videoInfo_getVideoPlayNum1" + vid
 	returnVal := models.Md5(testMd5String)
 	fmt.Println(returnVal)
+	if cacheHandler.IsExist(returnVal) {
+		fromCacheByte := cacheHandler.Get(returnVal)
+		fmt.Println(fromCacheByte)
+	}
+
+
+
 
 	videoDefinitions, _ := models.GetVideoDefinitions(int64(vidInt), false, "1000,1300,350,yuanhua")
 	this.Data["json"] = videoDefinitions
