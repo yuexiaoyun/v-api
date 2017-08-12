@@ -27,6 +27,10 @@ func RegisterDB() {
 }
 
 func GetCacheHandler() (adapter cache.Cache, err error){
+	if !beego.AppConfig.Bool("EnableCache"){
+		err = fmt.Errorf("Cache is disable now")
+		return
+	}
 	return cache.NewCache("memcache", `{"conn":"`+beego.AppConfig.String("memcache_host_1")+`:`+beego.AppConfig.String("memcache_port_1")+`;`+beego.AppConfig.String("memcache_host_2")+`:`+beego.AppConfig.String("memcache_port_2")+`"}`)
 }
 
