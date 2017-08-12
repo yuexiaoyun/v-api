@@ -37,8 +37,8 @@ type RawVideoInfo struct {
 	UploadStartTime int64
 	Duration        string
 	Cover           string
-	VideoPlayNum    int64
-	VideoSupport    int64
+	VideoPlayNum    int64 `orm:"column(video_play_sum)"`
+	VideoSupport    int64 `orm:"column(video_support)"`
 }
 
 func GetRawVideo(vid string) RawVideoInfo {
