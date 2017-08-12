@@ -130,7 +130,7 @@ func (this *VideoController) ShenJTDetail() {
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
-		if videoInfo.Vid != "" {
+		if videoInfo.Vid != 0 {
 			models.SetDataIntoCache(cacheKye,videoInfo,60*3)
 		}
 	}else{
@@ -144,7 +144,7 @@ func (this *VideoController) ShenJTDetail() {
 				beego.Info("数据从表读取：")
 				beego.Info(videoInfo)
 				//判断结构vid是否为空，不空，设置缓存
-				if videoInfo.Vid != "" {
+				if videoInfo.Vid != 0 {
 					models.SetDataIntoCache(cacheKye,videoInfo,60*3)
 				}
 			}else{
@@ -156,7 +156,7 @@ func (this *VideoController) ShenJTDetail() {
 			beego.Info("数据从表读取：")
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
-			if videoInfo.Vid != "" {
+			if videoInfo.Vid != 0 {
 				models.SetDataIntoCache(cacheKye,videoInfo,60*3)
 			}
 		}
