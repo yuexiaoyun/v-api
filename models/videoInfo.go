@@ -181,6 +181,7 @@ func getDuration(rawVideo RawVideoInfo)  string{
 	if input == "0" {
 		return "00:00"
 	}
+	input = input + "s"
 	duration, err := time.ParseDuration(input)
 	if err != nil {
 		beego.Info("转换时长出错")
