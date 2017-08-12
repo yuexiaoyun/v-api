@@ -49,7 +49,7 @@ func (this *VideoController) TestRouter() {
 	vid := this.Input().Get("vid")
 	vidInt, _ := strconv.Atoi(vid)
 
-	testMd5String := "videoInfo_getVideoPlayNum1" + vid
+	testMd5String := "huya_video_api_1_videoInfo_getVideoPlayNum1" + vid
 	returnVal := models.Md5(testMd5String)
 	fmt.Println(returnVal)
 	if cacheHandler.IsExist(returnVal) {
