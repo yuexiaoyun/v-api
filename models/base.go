@@ -8,6 +8,7 @@ import (
 	"github.com/astaxie/beego/cache"
 	"encoding/json"
 	"time"
+	"crypto/md5"
 )
 
 func RegisterDB() {
@@ -38,6 +39,10 @@ func SetDataIntoCache(key string,data interface{},timeout int64){
 		beego.Error("缓存设置数据出错")
 		beego.Error(err)
 	}
+}
 
+func Md5(value string) string {
+	data := []byte(value)
+	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
