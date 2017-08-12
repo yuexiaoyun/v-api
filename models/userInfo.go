@@ -60,7 +60,7 @@ func GetRawUser(uid int64) (UserInfo, string) {
 			userVideoSum, _ := userInfo["user_video_sum"].(int)
 			userPlaySum, _ := userInfo["user_play_sum"].(int)
 			userAvatar := "http://v.huya.com/style/img/editor-avatar.gif"
-			if userInfo["user_avatar"] != nil {
+			if userInfo["user_avatar"] != nil && userInfo["user_avatar"] != ""{
 				userAvatar = fmt.Sprint(userInfo["user_avatar"])
 			}
 			retRawUserInfo = UserInfo{
