@@ -21,7 +21,7 @@ type VideoInfo struct {
 	UserAvatar        string `json:"user_avatar"`
 	UserNickname      string `json:"user_nickname"`
 	UserHomepage      string `json:"user_homepage"`
-	Vid               string `json:"vid"`
+	Vid               int64 `json:"vid"`
 	VideoTitle        string `json:"video_title"`
 	VideoSubtitle     string `json:"video_subtitle"`
 	VideoCover        string `json:"video_cover"`
@@ -109,7 +109,7 @@ func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 	}
 
 	videoInfo := VideoInfo{
-		Vid:            strconv.FormatInt(rawVideo.Vid, 10),
+		Vid:            rawVideo.Vid,
 		VideoTitle:    getTitle(rawVideo),
 		VideoSubtitle: getTitle(rawVideo),
 		VideoCover:    getVideoCover(rawVideo),
