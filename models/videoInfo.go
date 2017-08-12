@@ -93,20 +93,7 @@ func getYearAndWeek(timestamp int64) (string, string) {
 	t, _ := time.Parse(format, time.Unix(timestamp, 0).Format(format))
 	year, week := t.ISOWeek()
 	year = year - 2000
-	var yearStr string
-	var weekStr string
-	if year < 10 {
-		yearStr = "0" + strconv.Itoa(year)
-	} else {
-		yearStr = strconv.Itoa(year)
-	}
-	if week < 10 {
-		weekStr = "0" + strconv.Itoa(week)
-	} else {
-		weekStr = strconv.Itoa(week)
-	}
-
-	return yearStr, weekStr
+	return fmt.Sprintf("%02d",year), fmt.Sprintf("%02d",week)
 }
 
 func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
@@ -128,7 +115,7 @@ func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 		VideoCover:    getVideoCover(rawVideo),
 		VideoPlayNum:rawVideo.VideoPlayNum,
 		VideoCommentNum:rawVideo.VideoSupport,
-		VideoDuration:rawVideo.Duration,
+		VideoDuration:getDuration(rawVideo),
 		VideoBigCover:getVideoBigCover(rawVideo),
 		VideoCover375x375:getVideoCoverBySize(rawVideo, "375", "375"),
 		VideoUrl:getVideoUrl(rawVideo),
@@ -189,6 +176,38 @@ func getUserInfo(uid int64) RetUserInfo {
 	return retUserInfo
 }
 
+func getDuration(rawVideo RawVideoInfo)  string{
+	input := rawVideo.Duration
+	if input == "0" {
+		return "00:00"
+	}
+	duration, err := time.ParseDuration(input)
+	if err != nil {
+		beego.Info("转换时长出错")
+		beego.Info(err)
+		return "00:00"
+	}else{
+		durationFloat,err := strconv.ParseFloat(input,64)
+		if err != nil {
+			var seconds int
+			var minutes int
+			var hours int
+			if durationFloat >= 3600 {
+				seconds = int(duration.Seconds()) % 60
+				minutes = int(duration.Minutes()) % 60
+				hours = int(duration.Hours()) % 24
+				return fmt.Sprintf("%02d:%02d:%02d", hours,minutes,seconds)
+
+			}else{
+				seconds = int(duration.Seconds()) % 60
+				minutes = int(duration.Minutes()) % 60
+				return fmt.Sprintf("%02d:%02d", minutes,seconds)
+			}
+		}else{
+			return "00:00"
+		}
+	}
+}
 func GetByVid(vid string) VideoInfo {
 	//TODO 缓存
 	rawVideo := GetRawVideo(vid)
