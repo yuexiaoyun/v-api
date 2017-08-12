@@ -27,7 +27,7 @@ func RegisterDB() {
 }
 
 func GetCacheHandler() (adapter cache.Cache, err error){
-	if !beego.AppConfig.Bool("EnableCache"){
+	if enableCache,_ := beego.AppConfig.Bool("EnableCache");enableCache == false{
 		err = fmt.Errorf("Cache is disable now")
 		return
 	}
