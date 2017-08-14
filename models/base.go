@@ -26,17 +26,7 @@ func (dc *DatabaseCheck) Check() error {
 
 
 func (dc *DatabaseCheck) IsConnected() bool{
-	dbhost := beego.AppConfig.String("mysqlhost")
-	dbport := beego.AppConfig.String("mysqlport")
-	dbuser := beego.AppConfig.String("mysqluser")
-	dbpassword := beego.AppConfig.String("mysqlpass")
-	db := beego.AppConfig.String("mysqldb")
-	//注册mysql Driver
-	orm.RegisterDriver("mysql", orm.DRMySQL)
-	//构造conn连接
-	conn := dbuser + ":" + dbpassword + "@tcp(" + dbhost + ":" + dbport + ")/" + db + "?charset=utf8"
-	//注册数据库连接
-	err := orm.RegisterDataBase("healthCheck", "mysql", conn)
+	_,err := orm.GetDB("default")
 	if err == nil {
 		return true
 	}else{
