@@ -9,7 +9,40 @@ import (
 	"encoding/json"
 	"time"
 	"crypto/md5"
+	"errors"
 )
+
+type DatabaseCheck struct {
+
+}
+
+func (dc *DatabaseCheck) Check() error {
+	if dc.IsConnected() {
+		return nil
+	} else {
+		return errors.New("can't connect database")
+	}
+}
+
+
+func (dc *DatabaseCheck) IsConnected() bool{
+	dbhost := beego.AppConfig.String("mysqlhost")
+	dbport := beego.AppConfig.String("mysqlport")
+	dbuser := beego.AppConfig.String("mysqluser")
+	dbpassword := beego.AppConfig.String("mysqlpass")
+	db := beego.AppConfig.String("mysqldb")
+	//注册mysql Driver
+	orm.RegisterDriver("mysql", orm.DRMySQL)
+	//构造conn连接
+	conn := dbuser + ":" + dbpassword + "@tcp(" + dbhost + ":" + dbport + ")/" + db + "?charset=utf8"
+	//注册数据库连接
+	err := orm.RegisterDataBase("default", "mysql", conn)
+	if err == nil {
+		return true
+	}else{
+		return false
+	}
+}
 
 func RegisterDB() {
 	dbhost := beego.AppConfig.String("mysqlhost")

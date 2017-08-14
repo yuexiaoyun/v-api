@@ -7,6 +7,7 @@ import (
 	_ "v-api/routers"
 	_ "github.com/astaxie/beego/cache/memcache"
 
+	"github.com/astaxie/beego/toolbox"
 )
 
 func init() {
@@ -21,6 +22,10 @@ func main() {
 	}
 	beego.BConfig.WebConfig.DirectoryIndex = true
 	beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+
+
+	toolbox.AddHealthCheck("database",&models.DatabaseCheck{})
+
 
 	beego.Run()
 }
