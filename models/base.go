@@ -36,7 +36,7 @@ func (dc *DatabaseCheck) IsConnected() bool{
 	//构造conn连接
 	conn := dbuser + ":" + dbpassword + "@tcp(" + dbhost + ":" + dbport + ")/" + db + "?charset=utf8"
 	//注册数据库连接
-	err := orm.RegisterDataBase("default", "mysql", conn)
+	err := orm.RegisterDataBase("healthCheck", "mysql", conn)
 	if err == nil {
 		return true
 	}else{
