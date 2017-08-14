@@ -26,9 +26,14 @@ func (dc *DatabaseCheck) Check() error {
 
 
 func (dc *DatabaseCheck) IsConnected() bool{
-	_,err := orm.GetDB("default")
+	db,err := orm.GetDB("default")
 	if err == nil {
-		return true
+		if db.Ping() != nil {
+			return true
+		}else{
+			return false
+		}
+
 	}else{
 		return false
 	}
