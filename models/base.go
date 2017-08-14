@@ -33,7 +33,6 @@ func (dc *DatabaseCheck) IsConnected() bool{
 		}else{
 			return false
 		}
-
 	}else{
 		return false
 	}
