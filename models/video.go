@@ -54,15 +54,15 @@ func GetRawVideo(vid string) RawVideoInfo {
 	*返回数组[vid,vid,vid,...]格式
 	*获取自己上传的视频
 **/
-func GetVidsByUid(uid string) []int {
+func GetVidsByUid(uid string) []int64 {
 	var vidList []orm.Params
 	o := orm.NewOrm()
 	sql := `SELECT u.vid FROM upload_list u LEFT JOIN v_video v ON u.vid=v.vid WHERE u.status!=-9 AND u.can_play=1 AND v.user_id=?`
 	o.Raw(sql, uid).Values(&vidList)
-	var vidIntList []int
+	var vidIntList []int64
 	for _, vidMap := range vidList {
-		if vid, ok := vidMap["vid"].(string); ok == true {
-			vidIntList = append(vidIntList, strconv.ParseInt(vid,10,64))
+		if vid, ok := vidMap["vid"].(int64); ok == true {
+			vidIntList = append(vidIntList, vid)
 		}else{
 			beego.Error(ok)
 			beego.Error("类型判断失败")
