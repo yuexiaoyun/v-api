@@ -58,9 +58,10 @@ func GetVidsByUid(uid string) []int {
 	o := orm.NewOrm()
 	sql := `SELECT u.vid FROM upload_list u LEFT JOIN v_video v ON u.vid=v.vid WHERE u.status!=-9 AND u.can_play=1 AND v.user_id=?`
 	o.Raw(sql, uid).Values(&vidList)
-
+	fmt.Println(vidList)
 	var vidIntList []int
 	for _, vidMap := range vidList {
+		fmt.Println(vidMap)
 		if vid, ok := vidMap["vid"].(int); ok == true {
 			vidIntList = append(vidIntList, vid)
 		}
