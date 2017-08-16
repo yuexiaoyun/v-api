@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"v-api/models"
 	"encoding/json"
-	"fmt"
 )
 
 // Operations about Video
