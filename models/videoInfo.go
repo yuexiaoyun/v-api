@@ -283,12 +283,6 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo{
 	uploadVids := GetVidsByUid(yyuid)
 	var vidsIntList []int
 	vidsIntList = mergeAndSort(liveVids,uploadVids)
-
-	defer func() []VideoInfo{
-		beego.Error("出问题了")
-		return nil
-	}()
-
 	videoInfoList := GetList(vidsIntList,0)
 	return videoInfoList
 }
