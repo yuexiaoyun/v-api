@@ -10,6 +10,7 @@ import (
 	"github.com/adam-hanna/arrayOperations"
 	"sort"
 	"reflect"
+	"encoding/json"
 )
 
 func init() {
@@ -211,11 +212,48 @@ func getDuration(rawVideo RawVideoInfo)  string{
 }
 func GetByVid(vid string) VideoInfo {
 	//TODO 缓存
+	cacheKye := "go_video_info_"
+	cacheKye = cacheKye + vid
+	cacheHandler,errMsg := GetCacheHandler()
+	var videoInfo VideoInfo
 	rawVideo := GetRawVideo(vid)
-	videoInfo := getVideoInfo(rawVideo)
-	//fmt.Println(videoInfo)
-	/*rawUser := GetRawUser(int(video.Yyuid))
-	fmt.Println(rawUser)*/
+	if errMsg != nil {
+		videoInfo := getVideoInfo(rawVideo)
+		beego.Info("数据从表读取：")
+		beego.Info(videoInfo)
+		//判断结构vid是否为空，不空，设置缓存
+		if videoInfo.Vid != 0 {
+			SetDataIntoCache(cacheKye,videoInfo,60*3)
+		}
+	}else{
+		if cacheHandler.IsExist(cacheKye) {
+			fromCacheByte := cacheHandler.Get(cacheKye).([]byte)
+			unmarshalErr := json.Unmarshal(fromCacheByte,&videoInfo)
+			if unmarshalErr != nil {
+				beego.Info("解析有问题")
+				beego.Info(nil)
+				videoInfo = getVideoInfo(rawVideo)
+				beego.Info("数据从表读取：")
+				beego.Info(videoInfo)
+				//判断结构vid是否为空，不空，设置缓存
+				if videoInfo.Vid != 0 {
+					SetDataIntoCache(cacheKye,videoInfo,60*3)
+				}
+			}else{
+				beego.Info("数据从缓存读取：")
+				beego.Info(videoInfo)
+			}
+		}else {
+			videoInfo := getVideoInfo(rawVideo)
+			beego.Info("数据从表读取：")
+			beego.Info(videoInfo)
+			//判断结构vid是否为空，不空，设置缓存
+			if videoInfo.Vid != 0 {
+				SetDataIntoCache(cacheKye,videoInfo,60*3)
+			}
+		}
+	}
+
 	return videoInfo
 }
 
@@ -227,9 +265,10 @@ func getVideoCategory(rawVideo RawVideoInfo) string {
 func GetList(vidsList []int,limit int) []VideoInfo{
 	var videoList []VideoInfo
 	for _,vid := range vidsList{
-		videoInfo := GetByVid(strconv.Itoa(vid))
+		vidStr := strconv.Itoa(vid)
+		videoInfo := GetByVid(vidStr)
 		videoList = append(videoList,videoInfo)
-		if limit !=0 && len(videoList)>=limit {
+		if limit !=0 && len(videoList) >= limit {
 			break
 		}
 	}
@@ -244,9 +283,10 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo{
 	uploadVids := GetVidsByUid(yyuid)
 	var vidsIntList []int
 	vidsIntList = mergeAndSort(liveVids,uploadVids)
-	queryVidSlice := vidsIntList[(page-1)*limit:(page-1)*limit+limit]
-	if len(queryVidSlice) != 0 {
-		videoInfoList := GetList(queryVidSlice,0)
+	queryIntSlice := vidsIntList[(page-1)*limit:(page-1)*limit+limit]
+	fmt.Println(queryIntSlice)
+	if len(queryIntSlice) != 0 {
+		videoInfoList := GetList(queryIntSlice,0)
 		return videoInfoList
 	}else{
 		return nil

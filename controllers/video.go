@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"v-api/models"
 	"encoding/json"
+	"fmt"
 )
 
 // Operations about Video
@@ -37,11 +38,11 @@ func (this *VideoController) ShenJTLive() {
 	limit := this.Input().Get("limit")
 	page := this.Input().Get("page")
 
-	limitInt,limitErr := strconv.ParseInt(limit,10,64)
+	limitInt,limitErr := strconv.Atoi(limit)
 	if limitErr != nil {
 		beego.Error("limit is not a number");
 	}
-	pageInt,pageErr := strconv.ParseInt(page,10,64)
+	pageInt,pageErr := strconv.Atoi(page)
 	if pageErr != nil {
 		beego.Error("page is not a number");
 	}
@@ -49,17 +50,24 @@ func (this *VideoController) ShenJTLive() {
 		this.Data["json"] = "no data"
 		this.ServeJSON()
 	} else{
-		versionCodeInt,versionErr := strconv.ParseInt(versionCode,10,64)
-		if versionErr != nil {
-			beego.Error("versioncode is not a number");
-		}
-		if versionCodeInt == 2 {
-
+		if versionCode != "" {
+			versionCodeInt,versionErr := strconv.Atoi(versionCode)
+			if versionErr != nil {
+				beego.Error("versioncode is not a number");
+			}
+			if versionCodeInt == 2 {
+				shenJTLiveV2()
+			}else{
+				videoInfo := models.GetVideoByUid(yyuid,limitInt,pageInt)
+				this.Data["json"] = videoInfo
+				this.ServeJSON()
+			}
 		}else{
-			videoInfo := models.GetVideoByUid(yyuid,limit,page)
+			videoInfo := models.GetVideoByUid(yyuid,limitInt,pageInt)
 			this.Data["json"] = videoInfo
 			this.ServeJSON()
 		}
+
 	}
 
 }
