@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/adam-hanna/arrayOperations"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
@@ -54,15 +53,15 @@ func GetRawVideo(vid string) RawVideoInfo {
 	*返回数组[vid,vid,vid,...]格式
 	*获取自己上传的视频
 **/
-func GetVidsByUid(uid string) []int64 {
+func GetVidsByUid(uid string) []int {
 	var vidList []orm.Params
 	o := orm.NewOrm()
 	sql := `SELECT u.vid FROM upload_list u LEFT JOIN v_video v ON u.vid=v.vid WHERE u.status!=-9 AND u.can_play=1 AND v.user_id=?`
 	o.Raw(sql, uid).Values(&vidList)
-	var vidIntList []int64
+	var vidIntList []int
 	for _, vidMap := range vidList {
 		vid := fmt.Sprint(vidMap["vid"]);
-		vidInt,err := strconv.ParseInt(vid,10,64);
+		vidInt,err := strconv.Atoi(vid);
 		if err == nil {
 			vidIntList = append(vidIntList, vidInt)
 		}else{
@@ -78,20 +77,25 @@ func GetVidsByUid(uid string) []int64 {
 	*返回数组[vid,vid,vid,...]格式
 	*获取账号下的打点视频
 **/
-func GetDotVidByUid(uid string, limit int, page int) []string {
+func GetDotVidByUid(uid string, limit int, page int) []int {
 	var vidList []orm.Params
 	o := orm.NewOrm()
 	start := (page - 1) * limit
 	sql := `SELECT vid FROM upload_list WHERE  yyuid =? and source_client in (14,16) and can_play=1 and status!=-9  ORDER BY upload_start_time DESC LIMIT ?,?`
 	o.Raw(sql, uid, start, limit).Values(&vidList)
 
-	var vidStrList []string
+	var vidIntList []int
 	for _, vidMap := range vidList {
-		if vid, ok := vidMap["vid"].(string); ok == true {
-			vidStrList = append(vidStrList, vid)
+		vid := fmt.Sprint(vidMap["vid"]);
+		vidInt,err := strconv.Atoi(vid);
+		if err == nil {
+			vidIntList = append(vidIntList, vidInt)
+		}else{
+			beego.Error(err)
+			beego.Error("类型判断失败")
 		}
 	}
-	return vidStrList
+	return vidIntList
 }
 
 /*func GetDiyVidByUid(uid string, limit int, page int) []string {
@@ -109,22 +113,8 @@ func GetDotVidByUid(uid string, limit int, page int) []string {
 	return vidStrList
 }*/
 
-func GetVideoByUid(yyuid string, limit int, page int) {
-	/**
-	TODO 缓存
-	*/
-	liveVids := GetDotVidByUid(yyuid, limit, page)
-	//diyVids := GetDiyVidByUid(yyuid, limit, page)
-	uploadVids := GetVidsByUid(yyuid)
 
-	vids, ret := arrayOperations.Union(liveVids, uploadVids)
-	if ret {
-		fmt.Println(vids)
-	}else{
-		beego.Error("vid数组合并失败")
-	}
 
-}
 //获取转码信息：视频播放地址，分别率，宽高，大小等信息
 func GetVideoDefinitions(vid int64, needAll bool, order string) ([]VideoDefinition, string) {
 	//TODO 缓存

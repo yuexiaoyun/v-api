@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"v-api/models"
 	"encoding/json"
-	"fmt"
 )
 
 // Operations about Video
@@ -20,9 +19,9 @@ type VideoController struct {
 func (this *VideoController) TestRouter() {
 	//this.Ctx.WriteString("测试路由")
 	yyuid := this.Input().Get("uid");
-	vidStrList := models.GetVidsByUid(yyuid)
-	fmt.Println(vidStrList)
-	this.Data["json"] = "ok"
+	videoInfo := models.GetVideoByUid(yyuid,10,1)
+	//fmt.Println(vidStrList)
+	this.Data["json"] = videoInfo
 	this.ServeJSON()
 }
 

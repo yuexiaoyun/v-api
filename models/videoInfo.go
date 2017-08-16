@@ -7,6 +7,9 @@ import (
 	"time"
 	"fmt"
 	"strings"
+	"github.com/adam-hanna/arrayOperations"
+	"sort"
+	"reflect"
 )
 
 func init() {
@@ -218,4 +221,70 @@ func GetByVid(vid string) VideoInfo {
 
 func getVideoCategory(rawVideo RawVideoInfo) string {
 	return GetVideoCategory(rawVideo.Channel)
+}
+
+
+func GetList(vidsList []int,limit int) []VideoInfo{
+	var videoList []VideoInfo
+	for _,vid := range vidsList{
+		videoInfo := GetByVid(strconv.Itoa(vid))
+		videoList = append(videoList,videoInfo)
+		if limit !=0 && len(videoList)>=limit {
+			break
+		}
+	}
+	return videoList
+}
+
+func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo{
+	/**
+	TODO 缓存
+	*/
+	liveVids := GetDotVidByUid(yyuid, limit, page)
+	uploadVids := GetVidsByUid(yyuid)
+	var vidsIntList []int
+	vidsIntList = mergeAndSort(liveVids,uploadVids)
+	queryVidSlice := vidsIntList[(page-1)*limit:(page-1)*limit+limit]
+	if len(queryVidSlice) != 0 {
+		videoInfoList := GetList(queryVidSlice,0)
+		return videoInfoList
+	}else{
+		return nil
+	}
+}
+
+func mergeAndSort(liveVids []int,uploadVids []int) []int{
+	var vidsIntList []int
+	if(len(liveVids) !=0 && len(uploadVids) !=0){
+		var vids reflect.Value
+		var ret bool
+		vids, ret = arrayOperations.Union(liveVids, uploadVids)
+		if ret {
+			vidsIntList,ret = vids.Interface().([]int)
+			if !ret {
+				beego.Error("vid数组转化失败")
+				return []int{}
+			}else{
+				sort.Sort(sort.Reverse(sort.IntSlice(vidsIntList)))
+				return vidsIntList
+			}
+		}else{
+			beego.Error("vid数组合并失败")
+			return []int{}
+		}
+	}else{
+		if len(uploadVids) != 0{
+			sort.Sort(sort.Reverse(sort.IntSlice(uploadVids)))
+			vidsIntList = make([]int,len(uploadVids))
+			copy(vidsIntList,uploadVids[:])
+			return  vidsIntList
+		}else if len(liveVids) != 0{
+			sort.Sort(sort.Reverse(sort.IntSlice(liveVids)))
+			vidsIntList = make([]int,len(liveVids))
+			copy(vidsIntList,liveVids[:])
+			return  vidsIntList
+		}else{
+			return []int{}
+		}
+	}
 }
