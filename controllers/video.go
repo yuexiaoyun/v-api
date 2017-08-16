@@ -19,7 +19,8 @@ type VideoController struct {
 // @router /test [get]
 func (this *VideoController) TestRouter() {
 	//this.Ctx.WriteString("测试路由")
-	vidStrList := models.GetVidsByUid("50000336")
+	yyuid := this.Input().Get("uid");
+	vidStrList := models.GetVidsByUid(yyuid)
 	fmt.Println(vidStrList)
 	this.Data["json"] = "ok"
 	this.ServeJSON()
