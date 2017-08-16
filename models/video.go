@@ -61,9 +61,7 @@ func GetVidsByUid(uid string) []int64 {
 	o.Raw(sql, uid).Values(&vidList)
 	var vidIntList []int64
 	for _, vidMap := range vidList {
-
 		vid := fmt.Sprint(vidMap["vid"]);
-		beego.Info(vid)
 		vidInt,err := strconv.ParseInt(vid,10,64);
 		if err == nil {
 			vidIntList = append(vidIntList, vidInt)
