@@ -9,6 +9,7 @@ import (
 	"github.com/astaxie/beego/httplib"
 	"github.com/tidwall/gjson"
 	"regexp"
+	"strconv"
 )
 
 func init() {
@@ -60,12 +61,17 @@ func GetVidsByUid(uid string) []int64 {
 	o.Raw(sql, uid).Values(&vidList)
 	var vidIntList []int64
 	for _, vidMap := range vidList {
-		if vid, ok := vidMap["vid"].(int64); ok == true {
-			vidIntList = append(vidIntList, vid)
+
+		vid := fmt.Sprint(vidMap["vid"]);
+		beego.Info(vid)
+		vidInt,err := strconv.ParseInt(vid,10,64);
+		if err == nil {
+			vidIntList = append(vidIntList, vidInt)
 		}else{
-			beego.Error(ok)
+			beego.Error(err)
 			beego.Error("类型判断失败")
 		}
+
 	}
 	return vidIntList
 }
