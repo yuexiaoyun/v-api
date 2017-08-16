@@ -286,7 +286,6 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo{
 
 	defer func(){
 		beego.Error("出问题了")
-		return nil
 	}()
 	queryIntSlice := vidsIntList[(page-1)*limit:(page-1)*limit+limit]
 	fmt.Println(queryIntSlice)
