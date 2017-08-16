@@ -288,13 +288,9 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo{
 		beego.Error("出问题了")
 		return nil
 	}()
-	queryIntSlice := vidsIntList[(page-1)*limit:(page-1)*limit+limit]
-	if len(queryIntSlice) != 0 {
-		videoInfoList := GetList(queryIntSlice,0)
-		return videoInfoList
-	}else{
-		return nil
-	}
+
+	videoInfoList := GetList(vidsIntList,0)
+	return videoInfoList
 }
 
 func mergeAndSort(liveVids []int,uploadVids []int) []int{
