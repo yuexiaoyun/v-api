@@ -55,6 +55,10 @@ func (this *VideoController) ShenJTLive() {
 		}
 		if versionCodeInt == 2 {
 
+		}else{
+			videoInfo := models.GetVideoByUid(yyuid,limit,page)
+			this.Data["json"] = videoInfo
+			this.ServeJSON()
 		}
 	}
 
