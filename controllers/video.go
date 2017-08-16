@@ -4,7 +4,6 @@ import (
 	"github.com/astaxie/beego"
 	"strconv"
 	"v-api/models"
-	"time"
 	"encoding/json"
 	"fmt"
 )
@@ -20,82 +19,10 @@ type VideoController struct {
 // @router /test [get]
 func (this *VideoController) TestRouter() {
 	//this.Ctx.WriteString("测试路由")
-	type user struct{
-		Name string
-		Age int
-	}
-
-	userItem := user{
-		"test",
-		10,
-	}
-
-	testItem := user{}
-
-	//models.SetDataIntoCache("data",video)
-	cacheHandler,err := models.GetCacheHandler()
-	if err == nil {
-		jsonData,_ := json.Marshal(userItem)
-		cacheHandler.Put("data",jsonData,10 * time.Second)
-		fromCacheByte := cacheHandler.Get("data").([]byte)
-		unmarshalErr := json.Unmarshal(fromCacheByte,&testItem)
-		if unmarshalErr != nil {
-			beego.Info(testItem)
-		}else {
-			beego.Info(testItem)
-		}
-
-	}
-	vid := this.Input().Get("vid")
-	vidInt, _ := strconv.Atoi(vid)
-
-	testMd5String := "videoInfo_getVideoPlayNum1" + vid
-	returnVal := models.Md5(testMd5String)
-	fmt.Println(returnVal)
-
-	if cacheHandler.IsExist("huya_video_api_1_"+returnVal) {
-		fromCacheByte := cacheHandler.Get(returnVal)
-		fmt.Println(fromCacheByte)
-	}
-
-
-	videoInfo := models.GetRawVideo(vid)
-	fmt.Println(videoInfo)
-
-	videoDefinitions, _ := models.GetVideoDefinitions(int64(vidInt), false, "1000,1300,350,yuanhua")
-	this.Data["json"] = videoDefinitions
+	vidStrList := models.GetVidsByUid("50000336")
+	fmt.Println(vidStrList)
+	this.Data["json"] = "ok"
 	this.ServeJSON()
-	/*client := &http.Client{}
-	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"),vidInt,"1000,1300,350,yuanhua")
-	fmt.Println(url)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		// handle error
-		fmt.Println("err:",err)
-	}
-	req.Header.Set("Host", beego.AppConfig.String("videoTranscodeHost"))
-	resp, err := client.Do(req)
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("result err:",err)
-	}
-
-	fmt.Println(string(body))
-	*/
-
-	/*models.GetTagByVid(int64(vidInt))
-
-
-	videoInfo := models.GetRawVideo(vid)
-	fmt.Println(videoInfo)
-	this.Data["json"] = videoInfo
-	this.ServeJSON()*/
-	/*var vidStrList []string
-	vidStrList = models.GetVidsByUid("50000336")
-	fmt.Println(vidStrList)*/
 }
 
 // @Title ShenJTLive
@@ -103,11 +30,38 @@ func (this *VideoController) TestRouter() {
 // @Success 200 {string} logout success
 // @router /shenjtlive [get]
 func (this *VideoController) ShenJTLive() {
-	/*versionCode := this.Input().Get("ver")
+	versionCode := this.Input().Get("ver")
+
 
 	yyuid := this.Input().Get("yyuid")
 	limit := this.Input().Get("limit")
-	page := this.Input().Get("page")*/
+	page := this.Input().Get("page")
+
+	limitInt,limitErr := strconv.ParseInt(limit,10,64)
+	if limitErr != nil {
+		beego.Error("limit is not a number");
+	}
+	pageInt,pageErr := strconv.ParseInt(page,10,64)
+	if pageErr != nil {
+		beego.Error("page is not a number");
+	}
+	if len(yyuid) == 0 || limitInt < 1 || pageInt < 1 {
+		this.Data["json"] = "no data"
+		this.ServeJSON()
+	} else{
+		versionCodeInt,versionErr := strconv.ParseInt(versionCode,10,64)
+		if versionErr != nil {
+			beego.Error("versioncode is not a number");
+		}
+		if versionCodeInt == 2 {
+
+		}
+	}
+
+}
+
+
+func shenJTLiveV2(){
 
 }
 

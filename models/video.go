@@ -44,7 +44,6 @@ type RawVideoInfo struct {
 func GetRawVideo(vid string) RawVideoInfo {
 	var rawVideo RawVideoInfo
 	o := orm.NewOrm()
-	// num, err := o.Raw("SELECT u.vid, u.yyuid, v.user_id, u.video_title, u.video_name, u.source_name, u.channel, u.upload_start_time, u.duration, u.cover, v.video_play_sum, v.video_support FROM  upload_list u LEFT JOIN v_video v ON u.vid = v.vid WHERE u.vid=? AND u.status != -9 AND (u.can_play=1 or u.can_play=4)  LIMIT 1", vid).ValuesList(&lists)
 	sql := `SELECT u.vid, u.yyuid, v.user_id, u.video_title, u.video_name, u.source_name, u.channel, u.upload_start_time, u.duration, u.cover, v.video_play_sum, v.video_support FROM  upload_list u LEFT JOIN v_video v ON u.vid = v.vid WHERE u.vid=? AND u.status != -9 AND (u.can_play=1 or u.can_play=4)  LIMIT 1`
 	o.Raw(sql, vid).QueryRow(&rawVideo)
 	return rawVideo
@@ -54,19 +53,19 @@ func GetRawVideo(vid string) RawVideoInfo {
 	*返回数组[vid,vid,vid,...]格式
 	*获取自己上传的视频
 **/
-func GetVidsByUid(uid string) []string {
+func GetVidsByUid(uid string) []int {
 	var vidList []orm.Params
 	o := orm.NewOrm()
 	sql := `SELECT u.vid FROM upload_list u LEFT JOIN v_video v ON u.vid=v.vid WHERE u.status!=-9 AND u.can_play=1 AND v.user_id=?`
 	o.Raw(sql, uid).Values(&vidList)
 
-	var vidStrList []string
+	var vidIntList []int
 	for _, vidMap := range vidList {
-		if vid, ok := vidMap["vid"].(string); ok == true {
-			vidStrList = append(vidStrList, vid)
+		if vid, ok := vidMap["vid"].(int); ok == true {
+			vidIntList = append(vidIntList, vid)
 		}
 	}
-	return vidStrList
+	return vidIntList
 }
 
 /**
@@ -89,7 +88,7 @@ func GetDotVidByUid(uid string, limit int, page int) []string {
 	return vidStrList
 }
 
-func GetDiyVidByUid(uid string, limit int, page int) []string {
+/*func GetDiyVidByUid(uid string, limit int, page int) []string {
 	var vidList []orm.Params
 	o := orm.NewOrm()
 	start := (page - 1) * limit
@@ -102,19 +101,21 @@ func GetDiyVidByUid(uid string, limit int, page int) []string {
 		}
 	}
 	return vidStrList
-}
+}*/
 
 func GetVideoByUid(yyuid string, limit int, page int) {
 	/**
 	TODO 缓存
 	*/
 	liveVids := GetDotVidByUid(yyuid, limit, page)
-	diyVids := GetDiyVidByUid(yyuid, limit, page)
+	//diyVids := GetDiyVidByUid(yyuid, limit, page)
 	uploadVids := GetVidsByUid(yyuid)
 
-	vids, ret := arrayOperations.Union(liveVids, diyVids, uploadVids)
+	vids, ret := arrayOperations.Union(liveVids, uploadVids)
 	if ret {
 		fmt.Println(vids)
+	}else{
+		beego.Error("vid数组合并失败")
 	}
 
 }
@@ -162,16 +163,6 @@ func GetVideoDefinitions(vid int64, needAll bool, order string) ([]VideoDefiniti
 }
 
 func GetVideoCategory(channel string) string {
-	/*categoryMap := make(map[string]string,10)
-	categoryMap["vhuyalol"] = "英雄联盟"
-	categoryMap["vhuyawzry"] = "王者荣耀"
-	categoryMap["vhuyaball"] = "球球大作战"
-	categoryMap["vhuyacfm"] = "CFM"
-	categoryMap["vhuyamc"] = "我的世界"
-	categoryMap["vhuyadnf"] = "地下城与勇士"
-	categoryMap["vhuyablizzard"] = "暴雪游戏"
-	categoryMap["vhuyayule"] = "娱乐"
-	categoryMap["vhuyapc"] = "单机游戏"*/
 	switch channel {
 	case "vhuyalol":
 		return "英雄联盟"
