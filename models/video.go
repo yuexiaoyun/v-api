@@ -64,6 +64,9 @@ func GetVidsByUid(uid string) []int {
 		fmt.Println(vidMap)
 		if vid, ok := vidMap["vid"].(int); ok == true {
 			vidIntList = append(vidIntList, vid)
+		}else{
+			beego.Error(ok)
+			beego.Error("类型判断失败")
 		}
 	}
 	return vidIntList
