@@ -268,18 +268,16 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	var videoList []VideoInfo
 	videoSize := len(vidsList)
 
-	/*wg := sync.WaitGroup{}
-	wg.Add(videoSize)*/
+	wg := sync.WaitGroup{}
+	wg.Add(videoSize)
 	ReturnVideoInfo = []VideoInfo{}
 	for i := 0; i < videoSize; i++ {
-		//go GoGetVideoSlice(&wg, vidsList[i])
-		videoInfo := GetByVid(strconv.Itoa(vidsList[i]))
-		ReturnVideoInfo = append(ReturnVideoInfo, videoInfo)
+		go GoGetVideoSlice(&wg, vidsList[i])
 		if limit != 0 && len(ReturnVideoInfo) >= limit {
 			break
 		}
 	}
-	//wg.Wait()
+	wg.Wait()
 	videoList = ReturnVideoInfo
 
 	/*for _, vid := range vidsList {
