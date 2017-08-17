@@ -92,7 +92,13 @@ func GetCacheHandler() (mem *memcache.Memcache, err error) {
 }*/
 
 func SetDataIntoCache(cacheHandler *memcache.Memcache,key string, data interface{}, timeout uint32) {
-	cacheHandler.Set(key, data, timeout)
+
+	if enableCache, _ := beego.AppConfig.Bool("EnableCache"); enableCache == false {
+		beego.Info("不开缓存，无法设置")
+		return
+	}else{
+		cacheHandler.Set(key, data, timeout)
+	}
 }
 
 func Md5(value string) string {
