@@ -1,42 +1,45 @@
 package models
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	"strconv"
-	"github.com/astaxie/beego"
-	"time"
-	"fmt"
-	"strings"
-	"github.com/adam-hanna/arrayOperations"
-	"sort"
-	"reflect"
 	"encoding/json"
+	"fmt"
+	"github.com/adam-hanna/arrayOperations"
+	"github.com/astaxie/beego"
+	_ "github.com/go-sql-driver/mysql"
+	"reflect"
+	"sort"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
+
+var ReturnVideoInfo []VideoInfo
 
 func init() {
 
 }
 
 type VideoInfo struct {
-	UserId            string `json:"user_id"`
-	UserAvatar        string `json:"user_avatar"`
-	UserNickname      string `json:"user_nickname"`
-	UserHomepage      string `json:"user_homepage"`
-	Vid               int64 `json:"vid"`
-	VideoTitle        string `json:"video_title"`
-	VideoSubtitle     string `json:"video_subtitle"`
-	VideoCover        string `json:"video_cover"`
-	VideoCover375x375 string `json:"video_cover_375_375"`
-	VideoBigCover     string `json:"video_big_cover"`
-	VideoPlayNum      int64 `json:"video_play_num"`
-	VideoCommentNum   int64 `json:"video_comment_num"`
-	VideoDuration     string `json:"video_duration"`
-	VideoUrl          string `json:"video_url"`
-	VideoUploadTime   string `json:"video_upload_time"`
-	VideoChannel      string `json:"video_channel"`
-	VideoTags         string `json:"video_tags"`
+	UserId            string            `json:"user_id"`
+	UserAvatar        string            `json:"user_avatar"`
+	UserNickname      string            `json:"user_nickname"`
+	UserHomepage      string            `json:"user_homepage"`
+	Vid               int64             `json:"vid"`
+	VideoTitle        string            `json:"video_title"`
+	VideoSubtitle     string            `json:"video_subtitle"`
+	VideoCover        string            `json:"video_cover"`
+	VideoCover375x375 string            `json:"video_cover_375_375"`
+	VideoBigCover     string            `json:"video_big_cover"`
+	VideoPlayNum      int64             `json:"video_play_num"`
+	VideoCommentNum   int64             `json:"video_comment_num"`
+	VideoDuration     string            `json:"video_duration"`
+	VideoUrl          string            `json:"video_url"`
+	VideoUploadTime   string            `json:"video_upload_time"`
+	VideoChannel      string            `json:"video_channel"`
+	VideoTags         string            `json:"video_tags"`
 	VideoDefinitions  []VideoDefinition `json:"video_definitions"`
-	VideoCategory     string `json:"video_category"`
+	VideoCategory     string            `json:"video_category"`
 }
 
 type RetUserInfo struct {
@@ -72,7 +75,6 @@ func getVideoCover(rawVideo RawVideoInfo) string {
 	return cover
 }
 
-
 //TODO 年周的计算方法有点繁琐，找时间改进
 func getVideoCoverBySize(rawVideo RawVideoInfo, width string, height string) string {
 	var cover string
@@ -94,7 +96,7 @@ func getYearAndWeek(timestamp int64) (string, string) {
 	t, _ := time.Parse(format, time.Unix(timestamp, 0).Format(format))
 	year, week := t.ISOWeek()
 	year = year - 2000
-	return fmt.Sprintf("%02d",year), fmt.Sprintf("%02d",week)
+	return fmt.Sprintf("%02d", year), fmt.Sprintf("%02d", week)
 }
 
 func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
@@ -102,32 +104,32 @@ func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 	var retUserInfo RetUserInfo = RetUserInfo{}
 	if status == "ok" {
 		retUserInfo = RetUserInfo{
-			user_id:rawUser.user_id,
-			user_avatar:rawUser.user_avatar,
-			user_nickname:rawUser.user_nickname,
-			user_homepage:rawUser.user_homepage,
+			user_id:       rawUser.user_id,
+			user_avatar:   rawUser.user_avatar,
+			user_nickname: rawUser.user_nickname,
+			user_homepage: rawUser.user_homepage,
 		}
 	}
 
 	videoInfo := VideoInfo{
-		Vid:            rawVideo.Vid,
-		VideoTitle:    getTitle(rawVideo),
-		VideoSubtitle: getTitle(rawVideo),
-		VideoCover:    getVideoCover(rawVideo),
-		VideoPlayNum:rawVideo.VideoPlayNum,
-		VideoCommentNum:rawVideo.VideoSupport,
-		VideoDuration:getDuration(rawVideo),
-		VideoBigCover:getVideoBigCover(rawVideo),
-		VideoCover375x375:getVideoCoverBySize(rawVideo, "375", "375"),
-		VideoUrl:getVideoUrl(rawVideo),
-		VideoUploadTime:getVideoUploadTime(rawVideo),
-		VideoChannel:getVideoChannel(rawVideo),
-		VideoTags:getVideoTags(rawVideo),
-		VideoCategory:getVideoCategory(rawVideo),
-		UserId:retUserInfo.user_id,
-		UserAvatar:retUserInfo.user_avatar,
-		UserNickname:retUserInfo.user_nickname,
-		UserHomepage:retUserInfo.user_homepage,
+		Vid:               rawVideo.Vid,
+		VideoTitle:        getTitle(rawVideo),
+		VideoSubtitle:     getTitle(rawVideo),
+		VideoCover:        getVideoCover(rawVideo),
+		VideoPlayNum:      rawVideo.VideoPlayNum,
+		VideoCommentNum:   rawVideo.VideoSupport,
+		VideoDuration:     getDuration(rawVideo),
+		VideoBigCover:     getVideoBigCover(rawVideo),
+		VideoCover375x375: getVideoCoverBySize(rawVideo, "375", "375"),
+		VideoUrl:          getVideoUrl(rawVideo),
+		VideoUploadTime:   getVideoUploadTime(rawVideo),
+		VideoChannel:      getVideoChannel(rawVideo),
+		VideoTags:         getVideoTags(rawVideo),
+		VideoCategory:     getVideoCategory(rawVideo),
+		UserId:            retUserInfo.user_id,
+		UserAvatar:        retUserInfo.user_avatar,
+		UserNickname:      retUserInfo.user_nickname,
+		UserHomepage:      retUserInfo.user_homepage,
 	}
 	videoDefinitions, status := GetVideoDefinitions(rawVideo.Vid, false, "1000,1300,350,yuanhua")
 	if status == "ok" {
@@ -158,8 +160,7 @@ func getVideoTags(rawVideo RawVideoInfo) string {
 	}
 }
 
-
-func getVideoPlayNum(rawVideo RawVideoInfo) int{
+func getVideoPlayNum(rawVideo RawVideoInfo) int {
 	return 0
 }
 func getUserInfo(uid int64) RetUserInfo {
@@ -167,17 +168,17 @@ func getUserInfo(uid int64) RetUserInfo {
 	var retUserInfo RetUserInfo = RetUserInfo{}
 	if status == "ok" {
 		retUserInfo = RetUserInfo{
-			user_id:rawUser.user_id,
-			user_avatar:rawUser.user_avatar,
-			user_nickname:rawUser.user_nickname,
-			user_homepage:rawUser.user_homepage,
+			user_id:       rawUser.user_id,
+			user_avatar:   rawUser.user_avatar,
+			user_nickname: rawUser.user_nickname,
+			user_homepage: rawUser.user_homepage,
 		}
 		return retUserInfo
 	}
 	return retUserInfo
 }
 
-func getDuration(rawVideo RawVideoInfo)  string{
+func getDuration(rawVideo RawVideoInfo) string {
 	input := rawVideo.Duration
 	if input == "0" {
 		return "00:00"
@@ -188,8 +189,8 @@ func getDuration(rawVideo RawVideoInfo)  string{
 		beego.Info("转换时长出错")
 		beego.Info(err)
 		return "00:00"
-	}else{
-		durationFloat,err := strconv.ParseFloat(input,64)
+	} else {
+		durationFloat, err := strconv.ParseFloat(input, 64)
 		if err != nil {
 			var seconds int
 			var minutes int
@@ -198,14 +199,14 @@ func getDuration(rawVideo RawVideoInfo)  string{
 				seconds = int(duration.Seconds()) % 60
 				minutes = int(duration.Minutes()) % 60
 				hours = int(duration.Hours()) % 24
-				return fmt.Sprintf("%02d:%02d:%02d", hours,minutes,seconds)
+				return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
 
-			}else{
+			} else {
 				seconds = int(duration.Seconds()) % 60
 				minutes = int(duration.Minutes()) % 60
-				return fmt.Sprintf("%02d:%02d", minutes,seconds)
+				return fmt.Sprintf("%02d:%02d", minutes, seconds)
 			}
-		}else{
+		} else {
 			return "00:00"
 		}
 	}
@@ -214,21 +215,21 @@ func GetByVid(vid string) VideoInfo {
 	//TODO 缓存
 	cacheKye := "go_video_info_"
 	cacheKye = cacheKye + vid
-	cacheHandler,errMsg := GetCacheHandler()
+	cacheHandler, errMsg := GetCacheHandler()
 	var videoInfo VideoInfo
 	rawVideo := GetRawVideo(vid)
 	if errMsg != nil {
-		videoInfo := getVideoInfo(rawVideo)
+		videoInfo = getVideoInfo(rawVideo)
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
 		if videoInfo.Vid != 0 {
-			SetDataIntoCache(cacheKye,videoInfo,60*3)
+			SetDataIntoCache(cacheKye, videoInfo, 60*3)
 		}
-	}else{
+	} else {
 		if cacheHandler.IsExist(cacheKye) {
 			fromCacheByte := cacheHandler.Get(cacheKye).([]byte)
-			unmarshalErr := json.Unmarshal(fromCacheByte,&videoInfo)
+			unmarshalErr := json.Unmarshal(fromCacheByte, &videoInfo)
 			if unmarshalErr != nil {
 				beego.Info("解析有问题")
 				beego.Info(nil)
@@ -237,19 +238,19 @@ func GetByVid(vid string) VideoInfo {
 				beego.Info(videoInfo)
 				//判断结构vid是否为空，不空，设置缓存
 				if videoInfo.Vid != 0 {
-					SetDataIntoCache(cacheKye,videoInfo,60*3)
+					SetDataIntoCache(cacheKye, videoInfo, 60*3)
 				}
-			}else{
+			} else {
 				beego.Info("数据从缓存读取：")
 				beego.Info(videoInfo)
 			}
-		}else {
-			videoInfo := getVideoInfo(rawVideo)
+		} else {
+			videoInfo = getVideoInfo(rawVideo)
 			beego.Info("数据从表读取：")
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
 			if videoInfo.Vid != 0 {
-				SetDataIntoCache(cacheKye,videoInfo,60*3)
+				SetDataIntoCache(cacheKye, videoInfo, 60*3)
 			}
 		}
 	}
@@ -261,64 +262,84 @@ func getVideoCategory(rawVideo RawVideoInfo) string {
 	return GetVideoCategory(rawVideo.Channel)
 }
 
-
-func GetList(vidsList []int,limit int) []VideoInfo{
+func GetList(vidsList []int, limit int) []VideoInfo {
 	var videoList []VideoInfo
-	for _,vid := range vidsList{
-		vidStr := strconv.Itoa(vid)
-		videoInfo := GetByVid(vidStr)
-		videoList = append(videoList,videoInfo)
-		if limit !=0 && len(videoList) >= limit {
+	videoSize := len(vidsList)
+
+	wg := sync.WaitGroup{}
+	wg.Add(videoSize)
+	ReturnVideoInfo = []VideoInfo{}
+	for i := 0; i < videoSize; i++ {
+		go GoGetVideoSlice(&wg, vidsList[i])
+		if limit != 0 && len(ReturnVideoInfo) >= limit {
 			break
 		}
 	}
+	wg.Wait()
+	videoList = ReturnVideoInfo
+
+	/*for _, vid := range vidsList {
+		vidStr := strconv.Itoa(vid)
+		videoInfo := GetByVid(vidStr)
+		videoList = append(videoList, videoInfo)
+		if limit != 0 && len(videoList) >= limit {
+			break
+		}
+	}*/
 	return videoList
 }
 
-func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo{
+func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo {
 	/**
 	TODO 缓存
 	*/
 	liveVids := GetDotVidByUid(yyuid, limit, page)
-	uploadVids := GetVidsByUid(yyuid)
+	uploadVids := GetVidsByUid(yyuid, limit, page)
 	var vidsIntList []int
-	vidsIntList = mergeAndSort(liveVids,uploadVids)
-	videoInfoList := GetList(vidsIntList,0)
+	vidsIntList = mergeAndSort(liveVids, uploadVids)
+
+	videoInfoList := GetList(vidsIntList, 20)
 	return videoInfoList
 }
 
-func mergeAndSort(liveVids []int,uploadVids []int) []int{
+func mergeAndSort(liveVids []int, uploadVids []int) []int {
 	var vidsIntList []int
-	if(len(liveVids) !=0 && len(uploadVids) !=0){
+	if len(liveVids) != 0 && len(uploadVids) != 0 {
 		var vids reflect.Value
 		var ret bool
 		vids, ret = arrayOperations.Union(liveVids, uploadVids)
 		if ret {
-			vidsIntList,ret = vids.Interface().([]int)
+			vidsIntList, ret = vids.Interface().([]int)
 			if !ret {
 				beego.Error("vid数组转化失败")
 				return []int{}
-			}else{
+			} else {
 				sort.Sort(sort.Reverse(sort.IntSlice(vidsIntList)))
 				return vidsIntList
 			}
-		}else{
+		} else {
 			beego.Error("vid数组合并失败")
 			return []int{}
 		}
-	}else{
-		if len(uploadVids) != 0{
+	} else {
+		if len(uploadVids) != 0 {
 			sort.Sort(sort.Reverse(sort.IntSlice(uploadVids)))
-			vidsIntList = make([]int,len(uploadVids))
-			copy(vidsIntList,uploadVids[:])
-			return  vidsIntList
-		}else if len(liveVids) != 0{
+			vidsIntList = make([]int, len(uploadVids))
+			copy(vidsIntList, uploadVids[:])
+			return vidsIntList
+		} else if len(liveVids) != 0 {
 			sort.Sort(sort.Reverse(sort.IntSlice(liveVids)))
-			vidsIntList = make([]int,len(liveVids))
-			copy(vidsIntList,liveVids[:])
-			return  vidsIntList
-		}else{
+			vidsIntList = make([]int, len(liveVids))
+			copy(vidsIntList, liveVids[:])
+			return vidsIntList
+		} else {
 			return []int{}
 		}
 	}
+}
+
+func GoGetVideoSlice(wg *sync.WaitGroup, vid int) {
+	videoInfo := GetByVid(strconv.Itoa(vid))
+	ReturnVideoInfo = append(ReturnVideoInfo, videoInfo)
+	wg.Done()
 }

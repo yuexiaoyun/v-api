@@ -1,11 +1,11 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
-	_ "github.com/go-sql-driver/mysql"
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
+	"github.com/astaxie/beego/orm"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/tidwall/gjson"
 	"regexp"
 	"strconv"
@@ -53,18 +53,19 @@ func GetRawVideo(vid string) RawVideoInfo {
 	*返回数组[vid,vid,vid,...]格式
 	*获取自己上传的视频
 **/
-func GetVidsByUid(uid string) []int {
+func GetVidsByUid(uid string, limit int, page int) []int {
 	var vidList []orm.Params
 	o := orm.NewOrm()
-	sql := `SELECT u.vid FROM upload_list u LEFT JOIN v_video v ON u.vid=v.vid WHERE u.status!=-9 AND u.can_play=1 AND v.user_id=?`
-	o.Raw(sql, uid).Values(&vidList)
+	start := (page - 1) * limit
+	sql := `SELECT u.vid FROM upload_list u LEFT JOIN v_video v ON u.vid=v.vid WHERE u.status!=-9 AND u.can_play=1 AND v.user_id=? limit ?,?`
+	o.Raw(sql, uid, start, limit).Values(&vidList)
 	var vidIntList []int
 	for _, vidMap := range vidList {
-		vid := fmt.Sprint(vidMap["vid"]);
-		vidInt,err := strconv.Atoi(vid);
+		vid := fmt.Sprint(vidMap["vid"])
+		vidInt, err := strconv.Atoi(vid)
 		if err == nil {
 			vidIntList = append(vidIntList, vidInt)
-		}else{
+		} else {
 			beego.Error(err)
 			beego.Error("类型判断失败")
 		}
@@ -86,11 +87,11 @@ func GetDotVidByUid(uid string, limit int, page int) []int {
 
 	var vidIntList []int
 	for _, vidMap := range vidList {
-		vid := fmt.Sprint(vidMap["vid"]);
-		vidInt,err := strconv.Atoi(vid);
+		vid := fmt.Sprint(vidMap["vid"])
+		vidInt, err := strconv.Atoi(vid)
 		if err == nil {
 			vidIntList = append(vidIntList, vidInt)
-		}else{
+		} else {
 			beego.Error(err)
 			beego.Error("类型判断失败")
 		}
@@ -112,8 +113,6 @@ func GetDotVidByUid(uid string, limit int, page int) []int {
 	}
 	return vidStrList
 }*/
-
-
 
 //获取转码信息：视频播放地址，分别率，宽高，大小等信息
 func GetVideoDefinitions(vid int64, needAll bool, order string) ([]VideoDefinition, string) {
