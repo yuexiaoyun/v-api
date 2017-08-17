@@ -119,6 +119,19 @@ func GetRawUserFromDB(uid int64) (UserInfo, string) {
 
 		}
 		return retRawUserInfo, "ok"
+	}else{
+		retRawUserInfo = UserInfo{
+			user_id:strconv.Itoa(int(uid)),
+			user_avatar:"http://v.huya.com/style/img/editor-avatar.gif",
+			user_nickname:"虎牙小编",
+			user_homepage:"http://v.huya.com/",
+			user_channel: "",
+			user_channel_name:"",
+			user_video_sum:0,
+			user_play_sum:0,
+			user_desc:"",
+		}
+		return retRawUserInfo, "ok"
 	}
-	return UserInfo{}, "err:no data"
+
 }
