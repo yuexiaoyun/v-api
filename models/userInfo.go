@@ -95,10 +95,19 @@ func GetRawUserFromDB(uid int64) (UserInfo, string) {
 			if userInfo["user_avatar"] != nil && userInfo["user_avatar"] != ""{
 				userAvatar = fmt.Sprint(userInfo["user_avatar"])
 			}
+			userId := fmt.Sprint(userInfo["user_id"])
+			if  userId == ""{
+				userId = strconv.Itoa(int(uid))
+			}
+			userNickname := fmt.Sprint(userInfo["nickname"])
+			if userNickname == ""{
+				userNickname = "虎牙小编"
+			}
+
 			retRawUserInfo = UserInfo{
-				user_id:fmt.Sprint(userInfo["user_id"]),
+				user_id:userId,
 				user_avatar:userAvatar,
-				user_nickname:fmt.Sprint(userInfo["nickname"]),
+				user_nickname:userNickname,
 				user_homepage:beego.AppConfig.String("baseUrl") + "/u" + fmt.Sprint(userInfo["user_id"]),
 				user_channel: userChannel,
 				user_channel_name:userChannelName,
