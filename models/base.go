@@ -83,7 +83,7 @@ func GetCacheHandler() (mem *memcache.Memcache, err error) {
 }*/
 
 func SetDataIntoCache(cacheHandler *memcache.Memcache,key string, data interface{}, timeout uint32) {
-	cacheHandler.Set(key, data, timeout)
+	cacheHandler.Set(key, data, timeout*10)
 }
 
 func Md5(value string) string {
