@@ -41,10 +41,12 @@ func (this *VideoController) ShenJTLive() {
 
 	limitInt,limitErr := strconv.Atoi(limit)
 	if limitErr != nil {
+		limitInt = 20
 		beego.Error("limit is not a number");
 	}
 	pageInt,pageErr := strconv.Atoi(page)
 	if pageErr != nil {
+		pageInt = 1
 		beego.Error("page is not a number");
 	}
 	if len(yyuid) == 0 || limitInt < 1 || pageInt < 1 {
