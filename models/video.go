@@ -116,7 +116,35 @@ func GetDotVidByUid(uid string, limit int, page int) []int {
 
 //获取转码信息：视频播放地址，分别率，宽高，大小等信息
 func GetVideoDefinitions(vid int64, needAll bool, order string) ([]VideoDefinition, string) {
-	//TODO 缓存
+
+	cacheKey := VIDEODEFINITIONS
+	cacheKey = cacheKey + strconv.Itoa(int(vid))
+	cacheHandler, errMsg := GetCacheHandler()
+	var videoDefinitions []VideoDefinition
+	var status string
+	if errMsg == nil {
+		if _, _, e := cacheHandler.Get(cacheKey, &videoDefinitions); e != nil {
+			videoDefinitions, status = GetVideoDefinitionsFromHost(vid, needAll, order)
+			beego.Info("[GetVideoDefinitions]数据从表读取：")
+			beego.Info(videoDefinitions)
+			//判断结构vid是否为空，不空，设置缓存
+			if len(videoDefinitions) != 0 {
+				SetDataIntoCache(cacheHandler, cacheKey, videoDefinitions, VIDEODEFINITIONS_TIMEOUT)
+			}
+		} else {
+			beego.Info("[GetVideoDefinitions]数据从缓存读取：")
+			beego.Info(videoDefinitions)
+		}
+
+	} else {
+		beego.Error("[GetVideoByUid]获取缓存句柄失败")
+		videoDefinitions, status = GetVideoDefinitionsFromHost(vid, needAll, order)
+	}
+
+	return videoDefinitions, status
+}
+
+func GetVideoDefinitionsFromHost(vid int64, needAll bool, order string) ([]VideoDefinition, string) {
 	url := fmt.Sprintf(beego.AppConfig.String("videoTranscodeUrl"), vid, order)
 	req := httplib.Get(url)
 	req.Debug(true)

@@ -14,7 +14,16 @@ const (
 	SHENJTLIVE   = "shenjtlive_v1_"
 	SHENJTDETAIL = "shenjtdetail_v1_"
 	VIDEOINFO    = "videoinfo_vi_"
+	USERINFO     = "userinfo_v1_"
+	VIDEODEFINITIONS = "video_definitions_v1_"
+
+	SHENJTLIVE_TIMEOUT = 30 * 60
+	SHENJTDETAIL_TIMEOUT = 30 * 60
+	VIDEOINFO_TIMEOUT = 30 * 60
+	VIDEODEFINITIONS_TIMEOUT = 30 * 60
+	USERINFO_TIMEOUT = 15 * 60
 )
+
 
 type DatabaseCheck struct {
 }
@@ -83,7 +92,7 @@ func GetCacheHandler() (mem *memcache.Memcache, err error) {
 }*/
 
 func SetDataIntoCache(cacheHandler *memcache.Memcache,key string, data interface{}, timeout uint32) {
-	cacheHandler.Set(key, data, timeout*10)
+	cacheHandler.Set(key, data, timeout)
 }
 
 func Md5(value string) string {

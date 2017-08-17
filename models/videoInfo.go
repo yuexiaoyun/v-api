@@ -224,7 +224,7 @@ func GetByVid(vid string) VideoInfo {
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
 		if videoInfo.Vid != 0 {
-			SetDataIntoCache(cacheHandler,cacheKey, videoInfo, 60*3)
+			SetDataIntoCache(cacheHandler,cacheKey, videoInfo, VIDEOINFO_TIMEOUT)
 		}
 	} else {
 		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
@@ -235,7 +235,7 @@ func GetByVid(vid string) VideoInfo {
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
 			if videoInfo.Vid != 0 {
-				SetDataIntoCache(cacheHandler,cacheKey,videoInfo, 60*3)
+				SetDataIntoCache(cacheHandler,cacheKey,videoInfo, VIDEOINFO_TIMEOUT)
 			}
 		} else {
 			beego.Info("数据从缓存读取：")
@@ -290,7 +290,7 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo {
 			beego.Info(videoInfoList)
 			//判断结构vid是否为空，不空，设置缓存
 			if len(videoInfoList) != 0 {
-				SetDataIntoCache(cacheHandler,cacheKey, videoInfoList, 60*3)
+				SetDataIntoCache(cacheHandler,cacheKey, videoInfoList, SHENJTLIVE_TIMEOUT)
 			}
 		}else{
 			beego.Info("[GetVideoByUid]数据从缓存读取：")

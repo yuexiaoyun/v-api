@@ -11,6 +11,7 @@ import (
 	"strings"
 	"github.com/astaxie/beego"
 	"fmt"
+	"strconv"
 )
 
 func init() {
@@ -30,6 +31,37 @@ type UserInfo struct {
 }
 
 func GetRawUser(uid int64) (UserInfo, string) {
+	cacheKey := USERINFO
+	cacheKey = cacheKey + strconv.Itoa(int(uid))
+	cacheHandler, errMsg := GetCacheHandler()
+	var userInfo UserInfo
+	var status string
+	if errMsg != nil {
+		userInfo,status = GetRawUserFromDB(uid)
+		beego.Info("数据从表读取：")
+		beego.Info(userInfo)
+		//判断结构vid是否为空，不空，设置缓存
+		if userInfo.user_id != "" {
+			SetDataIntoCache(cacheHandler,cacheKey, userInfo, USERINFO_TIMEOUT)
+		}
+	} else {
+		if _, _, e := cacheHandler.Get(cacheKey, &userInfo); e != nil {
+			userInfo,status = GetRawUserFromDB(uid)
+			beego.Info("数据从表读取：")
+			beego.Info(userInfo)
+			//判断结构vid是否为空，不空，设置缓存
+			if userInfo.user_id != ""{
+				SetDataIntoCache(cacheHandler,cacheKey, userInfo, USERINFO_TIMEOUT)
+			}
+		}else{
+			status = "ok"
+		}
+	}
+	return userInfo,status
+}
+
+
+func GetRawUserFromDB(uid int64) (UserInfo, string) {
 	var rawUser []orm.Params
 	o := orm.NewOrm()
 	sql := `SELECT u.user_id, u.nickname, u.approve_name, u.sex, u.udb, u.role,
