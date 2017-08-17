@@ -4,7 +4,6 @@ import (
 	"github.com/astaxie/beego"
 	"strconv"
 	"v-api/models"
-	"encoding/json"
 )
 
 // Operations about Video
@@ -86,10 +85,10 @@ func shenJTLiveV2(){
 // @Success 200 {string} json success-视频详情
 // @router /shenjtdetail [get]
 func (this *VideoController) ShenJTDetail() {
-	cacheKye := models.SHENJTDETAIL
+	cacheKey := models.SHENJTDETAIL
 	vid := this.Input().Get("vid")
 	if vid != ""{
-		cacheKye = cacheKye + vid
+		cacheKey = cacheKey + vid
 	}
 	beego.Info("神镜头获取视频详情接口["+vid+"]")
 	var videoInfo models.VideoInfo
@@ -100,34 +99,22 @@ func (this *VideoController) ShenJTDetail() {
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
 		if videoInfo.Vid != 0 {
-			models.SetDataIntoCache(cacheKye,videoInfo,60*3)
+			models.SetDataIntoCache(cacheHandler,cacheKey,videoInfo,60*3)
 		}
 	}else{
-		if cacheHandler.IsExist(cacheKye) {
-			fromCacheByte := cacheHandler.Get(cacheKye).([]byte)
-			unmarshalErr := json.Unmarshal(fromCacheByte,&videoInfo)
-			if unmarshalErr != nil {
-				beego.Info("解析有问题")
-				beego.Info(nil)
-				videoInfo = models.GetByVid(vid)
-				beego.Info("数据从表读取：")
-				beego.Info(videoInfo)
-				//判断结构vid是否为空，不空，设置缓存
-				if videoInfo.Vid != 0 {
-					models.SetDataIntoCache(cacheKye,videoInfo,60*3)
-				}
-			}else{
-				beego.Info("数据从缓存读取：")
-				beego.Info(videoInfo)
-			}
-		}else {
+		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
+			beego.Info("解析有问题")
+			beego.Info(nil)
 			videoInfo = models.GetByVid(vid)
 			beego.Info("数据从表读取：")
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
 			if videoInfo.Vid != 0 {
-				models.SetDataIntoCache(cacheKye,videoInfo,60*3)
+				models.SetDataIntoCache(cacheHandler,cacheKey,videoInfo,60*3)
 			}
+		}else{
+			beego.Info("数据从缓存读取：")
+			beego.Info(videoInfo)
 		}
 	}
 	this.Data["json"] = videoInfo

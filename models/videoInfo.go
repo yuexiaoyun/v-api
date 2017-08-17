@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/adam-hanna/arrayOperations"
 	"github.com/astaxie/beego"
@@ -214,7 +213,6 @@ func getDuration(rawVideo RawVideoInfo) string {
 	}
 }
 func GetByVid(vid string) VideoInfo {
-	//TODO 缓存
 	cacheKey := VIDEOINFO
 	cacheKey = cacheKey + vid
 	cacheHandler, errMsg := GetCacheHandler()
@@ -226,34 +224,22 @@ func GetByVid(vid string) VideoInfo {
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
 		if videoInfo.Vid != 0 {
-			SetDataIntoCache(cacheKey, videoInfo, 60*3)
+			SetDataIntoCache(cacheHandler,cacheKey, videoInfo, 60*3)
 		}
 	} else {
-		if cacheHandler.IsExist(cacheKey) {
-			fromCacheByte := cacheHandler.Get(cacheKey).([]byte)
-			unmarshalErr := json.Unmarshal(fromCacheByte, &videoInfo)
-			if unmarshalErr != nil {
-				beego.Info("解析有问题")
-				beego.Info(nil)
-				videoInfo = getVideoInfo(rawVideo)
-				beego.Info("数据从表读取：")
-				beego.Info(videoInfo)
-				//判断结构vid是否为空，不空，设置缓存
-				if videoInfo.Vid != 0 {
-					SetDataIntoCache(cacheKey, videoInfo, 60*3)
-				}
-			} else {
-				beego.Info("数据从缓存读取：")
-				beego.Info(videoInfo)
-			}
-		} else {
+		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
+			beego.Info("解析有问题")
+			beego.Info(e)
 			videoInfo = getVideoInfo(rawVideo)
 			beego.Info("数据从表读取：")
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
 			if videoInfo.Vid != 0 {
-				SetDataIntoCache(cacheKey, videoInfo, 60*3)
+				SetDataIntoCache(cacheHandler,cacheKey,videoInfo, 60*3)
 			}
+		} else {
+			beego.Info("数据从缓存读取：")
+			beego.Info(videoInfo)
 		}
 	}
 
@@ -269,9 +255,10 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	videoSize := len(vidsList)
 
 	wg := sync.WaitGroup{}
-	wg.Add(videoSize)
+
 	ReturnVideoInfo = []VideoInfo{}
 	for i := 0; i < videoSize; i++ {
+		wg.Add(1)
 		go GoGetVideoSlice(&wg, vidsList[i])
 		if limit != 0 && len(ReturnVideoInfo) >= limit {
 			break
@@ -297,32 +284,19 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo {
 	cacheHandler, errMsg := GetCacheHandler()
 	var videoInfoList []VideoInfo
 	if errMsg == nil {
-		if cacheHandler.IsExist(cacheKey) {
-			fromCacheByte := cacheHandler.Get(cacheKey).([]byte)
-			unmarshalErr := json.Unmarshal(fromCacheByte, &videoInfoList)
-			if unmarshalErr != nil {
-				beego.Info("[GetVideoByUid]解析有问题")
-				beego.Info(nil)
-				videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
-				beego.Info("[GetVideoByUid]数据从表读取：")
-				beego.Info(videoInfoList)
-				//判断结构vid是否为空，不空，设置缓存
-				if len(videoInfoList) != 0 {
-					SetDataIntoCache(cacheKey, videoInfoList, 60*3)
-				}
-			} else {
-				beego.Info("[GetVideoByUid]数据从缓存读取：")
-				beego.Info(videoInfoList)
-			}
-		} else {
+		if _, _, e := cacheHandler.Get(cacheKey, &videoInfoList); e != nil {
 			videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
 			beego.Info("[GetVideoByUid]数据从表读取：")
 			beego.Info(videoInfoList)
 			//判断结构vid是否为空，不空，设置缓存
 			if len(videoInfoList) != 0 {
-				SetDataIntoCache(cacheKey, videoInfoList, 60*3)
+				SetDataIntoCache(cacheHandler,cacheKey, videoInfoList, 60*3)
 			}
+		}else{
+			beego.Info("[GetVideoByUid]数据从缓存读取：")
+			beego.Info(videoInfoList)
 		}
+
 	} else {
 		beego.Error("[GetVideoByUid]获取缓存句柄失败")
 		videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
