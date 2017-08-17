@@ -74,8 +74,8 @@ func GetCacheHandler() (mem *memcache.Memcache, err error) {
 	s2 := &memcache.Server{Address: beego.AppConfig.String("memcache_host_2")+":"+beego.AppConfig.String("memcache_port_2"), Weight: 50}
 	mem,err = memcache.NewMemcache([]*memcache.Server{s1, s2})
 	if err != nil {
-		beego.Error("缓存初始化链接失败")
-		beego.Error(err)
+		beego.Info("缓存初始化链接失败")
+		beego.Info(err)
 		return
 	}
 	return mem,err

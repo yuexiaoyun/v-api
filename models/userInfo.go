@@ -59,8 +59,6 @@ func GetRawUser(uid int64) (UserInfo, string) {
 	}
 	return userInfo,status
 }
-
-
 func GetRawUserFromDB(uid int64) (UserInfo, string) {
 	var rawUser []orm.Params
 	o := orm.NewOrm()
@@ -116,7 +114,6 @@ func GetRawUserFromDB(uid int64) (UserInfo, string) {
 				user_desc:fmt.Sprint(userInfo["edit_intro"]),
 			}
 			break
-
 		}
 		return retRawUserInfo, "ok"
 	}else{
