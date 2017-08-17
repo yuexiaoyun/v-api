@@ -26,13 +26,15 @@ func (this *VideoController) TestRouter() {
 }
 
 // @Title ShenJTLive
-// @Description Logs out current logged in user session
-// @Success 200 {string} logout success
+// @Description 获取主播视频列表
+// @Param   ver     query   int false       "ver"
+// @Param   yyuid     query   int false       "yyuid"
+// @Param   limit     query   int false       "limit"
+// @Param   page     query   int false       "page"
+// @Success 200 {string} 主播视频列表
 // @router /shenjtlive [get]
 func (this *VideoController) ShenJTLive() {
 	versionCode := this.Input().Get("ver")
-
-
 	yyuid := this.Input().Get("yyuid")
 	limit := this.Input().Get("limit")
 	page := this.Input().Get("page")
@@ -82,7 +84,7 @@ func shenJTLiveV2(){
 // @Success 200 {string} json success-视频详情
 // @router /shenjtdetail [get]
 func (this *VideoController) ShenJTDetail() {
-	cacheKye := "video_detail_"
+	cacheKye := models.SHENJTDETAIL
 	vid := this.Input().Get("vid")
 	if vid != ""{
 		cacheKye = cacheKye + vid

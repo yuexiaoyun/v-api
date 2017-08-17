@@ -40,6 +40,7 @@ type VideoInfo struct {
 	VideoTags         string            `json:"video_tags"`
 	VideoDefinitions  []VideoDefinition `json:"video_definitions"`
 	VideoCategory     string            `json:"video_category"`
+	VidCmsTime        int64             `json:"video_cms_time"`
 }
 
 type RetUserInfo struct {
@@ -126,6 +127,7 @@ func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 		VideoChannel:      getVideoChannel(rawVideo),
 		VideoTags:         getVideoTags(rawVideo),
 		VideoCategory:     getVideoCategory(rawVideo),
+		VidCmsTime:        rawVideo.UploadStartTime,
 		UserId:            retUserInfo.user_id,
 		UserAvatar:        retUserInfo.user_avatar,
 		UserNickname:      retUserInfo.user_nickname,
@@ -213,8 +215,8 @@ func getDuration(rawVideo RawVideoInfo) string {
 }
 func GetByVid(vid string) VideoInfo {
 	//TODO 缓存
-	cacheKye := "go_video_info_"
-	cacheKye = cacheKye + vid
+	cacheKey := VIDEOINFO
+	cacheKey = cacheKey + vid
 	cacheHandler, errMsg := GetCacheHandler()
 	var videoInfo VideoInfo
 	rawVideo := GetRawVideo(vid)
@@ -224,11 +226,11 @@ func GetByVid(vid string) VideoInfo {
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
 		if videoInfo.Vid != 0 {
-			SetDataIntoCache(cacheKye, videoInfo, 60*3)
+			SetDataIntoCache(cacheKey, videoInfo, 60*3)
 		}
 	} else {
-		if cacheHandler.IsExist(cacheKye) {
-			fromCacheByte := cacheHandler.Get(cacheKye).([]byte)
+		if cacheHandler.IsExist(cacheKey) {
+			fromCacheByte := cacheHandler.Get(cacheKey).([]byte)
 			unmarshalErr := json.Unmarshal(fromCacheByte, &videoInfo)
 			if unmarshalErr != nil {
 				beego.Info("解析有问题")
@@ -238,7 +240,7 @@ func GetByVid(vid string) VideoInfo {
 				beego.Info(videoInfo)
 				//判断结构vid是否为空，不空，设置缓存
 				if videoInfo.Vid != 0 {
-					SetDataIntoCache(cacheKye, videoInfo, 60*3)
+					SetDataIntoCache(cacheKey, videoInfo, 60*3)
 				}
 			} else {
 				beego.Info("数据从缓存读取：")
@@ -250,7 +252,7 @@ func GetByVid(vid string) VideoInfo {
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
 			if videoInfo.Vid != 0 {
-				SetDataIntoCache(cacheKye, videoInfo, 60*3)
+				SetDataIntoCache(cacheKey, videoInfo, 60*3)
 			}
 		}
 	}
@@ -290,14 +292,50 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 }
 
 func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo {
-	/**
-	TODO 缓存
-	*/
+	cacheKey := SHENJTLIVE
+	cacheKey = cacheKey + yyuid
+	cacheHandler, errMsg := GetCacheHandler()
+	var videoInfoList []VideoInfo
+	if errMsg == nil {
+		if cacheHandler.IsExist(cacheKey) {
+			fromCacheByte := cacheHandler.Get(cacheKey).([]byte)
+			unmarshalErr := json.Unmarshal(fromCacheByte, &videoInfoList)
+			if unmarshalErr != nil {
+				beego.Info("[GetVideoByUid]解析有问题")
+				beego.Info(nil)
+				videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
+				beego.Info("[GetVideoByUid]数据从表读取：")
+				beego.Info(videoInfoList)
+				//判断结构vid是否为空，不空，设置缓存
+				if len(videoInfoList) != 0 {
+					SetDataIntoCache(cacheKey, videoInfoList, 60*3)
+				}
+			} else {
+				beego.Info("[GetVideoByUid]数据从缓存读取：")
+				beego.Info(videoInfoList)
+			}
+		} else {
+			videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
+			beego.Info("[GetVideoByUid]数据从表读取：")
+			beego.Info(videoInfoList)
+			//判断结构vid是否为空，不空，设置缓存
+			if len(videoInfoList) != 0 {
+				SetDataIntoCache(cacheKey, videoInfoList, 60*3)
+			}
+		}
+	} else {
+		beego.Error("[GetVideoByUid]获取缓存句柄失败")
+		videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
+	}
+	return videoInfoList
+
+}
+
+func GetVideoByUidFromDB(yyuid string, limit int, page int) []VideoInfo {
 	liveVids := GetDotVidByUid(yyuid, limit, page)
 	uploadVids := GetVidsByUid(yyuid, limit, page)
 	var vidsIntList []int
 	vidsIntList = mergeAndSort(liveVids, uploadVids)
-
 	videoInfoList := GetList(vidsIntList, 20)
 	return videoInfoList
 }
