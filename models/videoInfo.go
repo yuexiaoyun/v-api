@@ -246,8 +246,6 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	wg.Wait()
 	videoList = ReturnVideoInfo*/
 
-
-
 	/*rawVideoInfo := GetRawVideoByList(vidsList,limit)
 	for _, rawVideoInfo := range rawVideoInfo {
 		videoInfo := GetByRawVideoInfo(rawVideoInfo)
@@ -257,10 +255,9 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 		}
 	}*/
 
-
 	for _, vid := range vidsList {
 		videoInfo := GetByVid(strconv.Itoa(vid))
-		videoList = append(videoList, videoInfo)
+		videoList = append(videoList, *videoInfo)
 		if limit != 0 && len(videoList) >= limit {
 			break
 		}
@@ -344,11 +341,11 @@ func mergeAndSort(liveVids []int, uploadVids []int) []int {
 //异步获取，后面发现可能不符合需求
 func GoGetVideoSlice(wg *sync.WaitGroup, vid int) {
 	videoInfo := GetByVid(strconv.Itoa(vid))
-	ReturnVideoInfo = append(ReturnVideoInfo, videoInfo)
+	ReturnVideoInfo = append(ReturnVideoInfo, *videoInfo)
 	wg.Done()
 }
 
-func GetByVid(vid string) VideoInfo {
+func GetByVid(vid string) *VideoInfo {
 	cacheKey := VIDEOINFO
 	cacheKey = cacheKey + vid
 	cacheHandler, errMsg := GetCacheHandler()
@@ -379,7 +376,7 @@ func GetByVid(vid string) VideoInfo {
 		}
 	}
 
-	return videoInfo
+	return &videoInfo
 }
 
 /*func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []VideoInfo) {

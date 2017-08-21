@@ -20,8 +20,8 @@ func (this *VideoController) TestRouter() {
 	//yyuid := this.Input().Get("uid");
 	//videoInfo := models.GetVideoByUid(yyuid,10,1)
 	//fmt.Println(vidStrList)
-	vidList := []int{12409280, 12620834,12398510}
-	rawVideoInfoList := models.GetRawVideoByList(vidList,3)
+	vidList := []int{12409280, 12620834, 12398510}
+	rawVideoInfoList := models.GetRawVideoByList(vidList, 3)
 	this.Data["json"] = rawVideoInfoList
 	this.ServeJSON()
 }
@@ -92,7 +92,7 @@ func (this *VideoController) ShenJTDetail() {
 		cacheKey = cacheKey + vid
 	}
 	beego.Info("神镜头获取视频详情接口[" + vid + "]")
-	var videoInfo models.VideoInfo
+	var videoInfo *models.VideoInfo
 	cacheHandler, errMsg := models.GetCacheHandler()
 	if errMsg != nil {
 		videoInfo = models.GetByVid(vid)
