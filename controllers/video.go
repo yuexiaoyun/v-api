@@ -21,7 +21,7 @@ func (this *VideoController) TestRouter() {
 	//videoInfo := models.GetVideoByUid(yyuid,10,1)
 	//fmt.Println(vidStrList)
 	vidList := []int{12409280, 12620834,12398510}
-	rawVideoInfoList := models.GetRawVideoByList(vidList)
+	rawVideoInfoList := models.GetRawVideoByList(vidList,3)
 	this.Data["json"] = rawVideoInfoList
 	this.ServeJSON()
 }
