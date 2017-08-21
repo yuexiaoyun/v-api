@@ -6,24 +6,25 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/pangudashu/memcache"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/pangudashu/memcache"
 )
 
 const (
-	SHENJTLIVE   = "shenjtlive_v1_"
-	SHENJTDETAIL = "shenjtdetail_v1_"
-	VIDEOINFO    = "videoinfo_vi_"
-	USERINFO     = "userinfo_v1_"
+	SHENJTLIVE       = "shenjtlive_v1_"
+	SHENJTDETAIL     = "shenjtdetail_v1_"
+	VIDEOINFO        = "videoinfo_vi_"
+	USERINFO         = "userinfo_v1_"
 	VIDEODEFINITIONS = "video_definitions_v1_"
+	GAMEINFO         = "gameinfo_v1_"
 
-	SHENJTLIVE_TIMEOUT = 30 * 60
-	SHENJTDETAIL_TIMEOUT = 30 * 60
-	VIDEOINFO_TIMEOUT = 30 * 60
-	VIDEODEFINITIONS_TIMEOUT = 30 * 60
-	USERINFO_TIMEOUT = 15 * 60
+	SHENJTLIVE_TIMEOUT       = 15 * 60
+	SHENJTDETAIL_TIMEOUT     = 15 * 60
+	VIDEOINFO_TIMEOUT        = 15 * 60
+	VIDEODEFINITIONS_TIMEOUT = 15 * 60
+	USERINFO_TIMEOUT         = 30 * 60
+	GAMEINFO_TIMEOUT         = 30 * 60
 )
-
 
 type DatabaseCheck struct {
 }
@@ -70,15 +71,15 @@ func GetCacheHandler() (mem *memcache.Memcache, err error) {
 		return
 	}
 
-	s1 := &memcache.Server{Address: beego.AppConfig.String("memcache_host_1")+":"+beego.AppConfig.String("memcache_port_1"), Weight: 50}
-	s2 := &memcache.Server{Address: beego.AppConfig.String("memcache_host_2")+":"+beego.AppConfig.String("memcache_port_2"), Weight: 50}
-	mem,err = memcache.NewMemcache([]*memcache.Server{s1, s2})
+	s1 := &memcache.Server{Address: beego.AppConfig.String("memcache_host_1") + ":" + beego.AppConfig.String("memcache_port_1"), Weight: 50}
+	s2 := &memcache.Server{Address: beego.AppConfig.String("memcache_host_2") + ":" + beego.AppConfig.String("memcache_port_2"), Weight: 50}
+	mem, err = memcache.NewMemcache([]*memcache.Server{s1, s2})
 	if err != nil {
 		beego.Info("缓存初始化链接失败")
 		beego.Info(err)
 		return
 	}
-	return mem,err
+	return mem, err
 	//return cache.NewCache("memcache", `{"conn":"`+beego.AppConfig.String("memcache_host_1")+`:`+beego.AppConfig.String("memcache_port_1")+`;`+beego.AppConfig.String("memcache_host_2")+`:`+beego.AppConfig.String("memcache_port_2")+`"}`)
 }
 
@@ -91,12 +92,12 @@ func GetCacheHandler() (mem *memcache.Memcache, err error) {
 	return cache.NewCache("memcache", `{"conn":"`+beego.AppConfig.String("memcache_host_1")+`:`+beego.AppConfig.String("memcache_port_1")+`;`+beego.AppConfig.String("memcache_host_2")+`:`+beego.AppConfig.String("memcache_port_2")+`"}`)
 }*/
 
-func SetDataIntoCache(cacheHandler *memcache.Memcache,key string, data interface{}, timeout uint32) {
+func SetDataIntoCache(cacheHandler *memcache.Memcache, key string, data interface{}, timeout uint32) {
 
 	if enableCache, _ := beego.AppConfig.Bool("EnableCache"); enableCache == false {
 		beego.Info("不开缓存，无法设置")
 		return
-	}else{
+	} else {
 		cacheHandler.Set(key, data, timeout)
 	}
 }
