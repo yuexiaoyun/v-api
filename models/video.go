@@ -42,12 +42,12 @@ type RawVideoInfo struct {
 	VideoSupport    int64 `orm:"column(video_support)"`
 }
 
-func GetRawVideo(vid string) RawVideoInfo {
+func GetRawVideo(vid string) *RawVideoInfo {
 	var rawVideo RawVideoInfo
 	o := orm.NewOrm()
 	sql := `SELECT u.vid, u.yyuid, v.user_id, u.video_title, u.video_name, u.source_name, u.channel, u.upload_start_time, u.duration, u.cover, v.video_play_sum, v.video_support FROM  upload_list u LEFT JOIN v_video v ON u.vid = v.vid WHERE u.vid=? AND u.status != -9 AND (u.can_play=1 or u.can_play=4)  LIMIT 1`
 	o.Raw(sql, vid).QueryRow(&rawVideo)
-	return rawVideo
+	return &rawVideo
 }
 
 func GetRawVideoByList(vidList []int, limit int) []RawVideoInfo {
@@ -72,13 +72,12 @@ func GetRawVideoByList(vidList []int, limit int) []RawVideoInfo {
 	*返回数组[vid,vid,vid,...]格式
 	*获取自己上传的视频
 **/
-func GetVidsByUid(uid string, limit int, page int) []int {
+func GetVidsByUid(uid string, limit int, page int) (vidIntList []int) {
 	var vidList []orm.Params
 	o := orm.NewOrm()
 	start := (page - 1) * limit
 	sql := `SELECT u.vid FROM upload_list u LEFT JOIN v_video v ON u.vid=v.vid WHERE u.status!=-9 AND u.can_play=1 AND v.user_id=? limit ?,?`
 	o.Raw(sql, uid, start, limit).Values(&vidList)
-	var vidIntList []int
 	for _, vidMap := range vidList {
 		vid := fmt.Sprint(vidMap["vid"])
 		vidInt, err := strconv.Atoi(vid)
@@ -90,7 +89,7 @@ func GetVidsByUid(uid string, limit int, page int) []int {
 		}
 
 	}
-	return vidIntList
+	return
 }
 
 /**
@@ -134,13 +133,12 @@ func GetDotVidByUid(uid string, limit int, page int) []int {
 }*/
 
 //获取转码信息：视频播放地址，分别率，宽高，大小等信息
-func GetVideoDefinitions(vid int64, needAll bool, order string) ([]VideoDefinition, string) {
+func GetVideoDefinitions(vid int64, needAll bool, order string) (videoDefinitions []VideoDefinition, status string) {
 
 	cacheKey := VIDEODEFINITIONS
 	cacheKey = cacheKey + strconv.Itoa(int(vid))
 	cacheHandler, errMsg := GetCacheHandler()
-	var videoDefinitions []VideoDefinition
-	var status string
+
 	if errMsg == nil {
 		if _, _, e := cacheHandler.Get(cacheKey, &videoDefinitions); e != nil {
 			videoDefinitions, status = GetVideoDefinitionsFromHost(vid, needAll, order)
@@ -160,7 +158,7 @@ func GetVideoDefinitions(vid int64, needAll bool, order string) ([]VideoDefiniti
 		videoDefinitions, status = GetVideoDefinitionsFromHost(vid, needAll, order)
 	}
 
-	return videoDefinitions, status
+	return
 }
 
 func GetVideoDefinitionsFromHost(vid int64, needAll bool, order string) ([]VideoDefinition, string) {

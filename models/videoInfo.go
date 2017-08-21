@@ -352,7 +352,7 @@ func GetByVid(vid string) *VideoInfo {
 	var videoInfo VideoInfo
 	rawVideo := GetRawVideo(vid)
 	if errMsg != nil {
-		videoInfo = getVideoInfo(rawVideo)
+		videoInfo = getVideoInfo(*rawVideo)
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
@@ -363,7 +363,7 @@ func GetByVid(vid string) *VideoInfo {
 		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
 			beego.Info("解析有问题")
 			beego.Info(e)
-			videoInfo = getVideoInfo(rawVideo)
+			videoInfo = getVideoInfo(*rawVideo)
 			beego.Info("数据从表读取：")
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
