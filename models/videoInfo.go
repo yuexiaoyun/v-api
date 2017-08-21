@@ -234,25 +234,24 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	wg.Wait()
 	videoList = ReturnVideoInfo*/
 	rawVideoInfo := GetRawVideoByList(vidsList)
-	/*for _, vid := range vidsList {
-		vidStr := strconv.Itoa(vid)
-		videoInfo := GetByVid(vidStr)
+	for _, rawVideoInfo := range rawVideoInfo {
+		videoInfo := GetByRawVideoInfo(rawVideoInfo)
 		videoList = append(videoList, videoInfo)
 		if limit != 0 && len(videoList) >= limit {
 			break
 		}
-	}*/
-	wg := sync.WaitGroup{}
+	}
+	/*wg := sync.WaitGroup{}
 	for _, rawVideoInfo := range rawVideoInfo {
 		wg.Add(1)
 		go GetByRawVideoInfo(rawVideoInfo, &wg, videoList)
-		/*videoList = append(videoList, videoInfo)
+		videoList = append(videoList, videoInfo)
 		if limit != 0 && len(videoList) >= limit {
 			break
-		}*/
+		}
 	}
 	wg.Wait()
-	videoList = ReturnVideoInfo
+	videoList = ReturnVideoInfo*/
 	return videoList
 }
 
@@ -370,7 +369,7 @@ func GetByVid(vid string) VideoInfo {
 	return videoInfo
 }
 
-func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []VideoInfo) {
+/*func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []VideoInfo) {
 	cacheKey := VIDEOINFO
 	cacheKey = cacheKey + strconv.Itoa(int(rawVideo.Vid))
 	cacheHandler, errMsg := GetCacheHandler()
@@ -401,4 +400,36 @@ func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []Vi
 	}
 	ReturnVideoInfo = append(ReturnVideoInfo, videoInfo)
 	wg.Done()
+}*/
+
+func GetByRawVideoInfo(rawVideo RawVideoInfo) VideoInfo {
+	cacheKey := VIDEOINFO
+	cacheKey = cacheKey + strconv.Itoa(int(rawVideo.Vid))
+	cacheHandler, errMsg := GetCacheHandler()
+	var videoInfo VideoInfo
+	if errMsg != nil {
+		videoInfo = getVideoInfo(rawVideo)
+		beego.Info("数据从表读取：")
+		beego.Info(videoInfo)
+		//判断结构vid是否为空，不空，设置缓存
+		if videoInfo.Vid != 0 {
+			SetDataIntoCache(cacheHandler, cacheKey, videoInfo, VIDEOINFO_TIMEOUT)
+		}
+	} else {
+		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
+			beego.Info("解析有问题")
+			beego.Info(e)
+			videoInfo = getVideoInfo(rawVideo)
+			beego.Info("数据从表读取：")
+			beego.Info(videoInfo)
+			//判断结构vid是否为空，不空，设置缓存
+			if videoInfo.Vid != 0 {
+				SetDataIntoCache(cacheHandler, cacheKey, videoInfo, VIDEOINFO_TIMEOUT)
+			}
+		} else {
+			beego.Info("数据从缓存读取：")
+			beego.Info(videoInfo)
+		}
+	}
+	return videoInfo
 }
