@@ -224,7 +224,7 @@ func GetByVid(vid string) VideoInfo {
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
 		if videoInfo.Vid != 0 {
-			SetDataIntoCache(cacheHandler,cacheKey, videoInfo, VIDEOINFO_TIMEOUT)
+			SetDataIntoCache(cacheHandler, cacheKey, videoInfo, VIDEOINFO_TIMEOUT)
 		}
 	} else {
 		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
@@ -235,7 +235,7 @@ func GetByVid(vid string) VideoInfo {
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
 			if videoInfo.Vid != 0 {
-				SetDataIntoCache(cacheHandler,cacheKey,videoInfo, VIDEOINFO_TIMEOUT)
+				SetDataIntoCache(cacheHandler, cacheKey, videoInfo, VIDEOINFO_TIMEOUT)
 			}
 		} else {
 			beego.Info("数据从缓存读取：")
@@ -252,7 +252,7 @@ func getVideoCategory(rawVideo RawVideoInfo) string {
 
 func GetList(vidsList []int, limit int) []VideoInfo {
 	var videoList []VideoInfo
-	videoSize := len(vidsList)
+	/*videoSize := len(vidsList)
 
 	wg := sync.WaitGroup{}
 
@@ -265,16 +265,16 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 		}
 	}
 	wg.Wait()
-	videoList = ReturnVideoInfo
+	videoList = ReturnVideoInfo*/
 
-	/*for _, vid := range vidsList {
+	for _, vid := range vidsList {
 		vidStr := strconv.Itoa(vid)
 		videoInfo := GetByVid(vidStr)
 		videoList = append(videoList, videoInfo)
 		if limit != 0 && len(videoList) >= limit {
 			break
 		}
-	}*/
+	}
 	return videoList
 }
 
@@ -290,9 +290,9 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo {
 			beego.Info(videoInfoList)
 			//判断结构vid是否为空，不空，设置缓存
 			if len(videoInfoList) != 0 {
-				SetDataIntoCache(cacheHandler,cacheKey, videoInfoList, SHENJTLIVE_TIMEOUT)
+				SetDataIntoCache(cacheHandler, cacheKey, videoInfoList, SHENJTLIVE_TIMEOUT)
 			}
-		}else{
+		} else {
 			beego.Info("[GetVideoByUid]数据从缓存读取：")
 			beego.Info(videoInfoList)
 		}
@@ -326,6 +326,7 @@ func mergeAndSort(liveVids []int, uploadVids []int) []int {
 				beego.Error("vid数组转化失败")
 				return []int{}
 			} else {
+				//倒序
 				sort.Sort(sort.Reverse(sort.IntSlice(vidsIntList)))
 				return vidsIntList
 			}
@@ -350,6 +351,7 @@ func mergeAndSort(liveVids []int, uploadVids []int) []int {
 	}
 }
 
+//异步获取，后面发现可能不符合需求
 func GoGetVideoSlice(wg *sync.WaitGroup, vid int) {
 	videoInfo := GetByVid(strconv.Itoa(vid))
 	ReturnVideoInfo = append(ReturnVideoInfo, videoInfo)

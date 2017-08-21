@@ -17,10 +17,12 @@ type VideoController struct {
 // @router /test [get]
 func (this *VideoController) TestRouter() {
 	//this.Ctx.WriteString("测试路由")
-	yyuid := this.Input().Get("uid");
-	videoInfo := models.GetVideoByUid(yyuid,10,1)
+	//yyuid := this.Input().Get("uid");
+	//videoInfo := models.GetVideoByUid(yyuid,10,1)
 	//fmt.Println(vidStrList)
-	this.Data["json"] = videoInfo
+	vidList := []int{16584020, 16584018}
+	rawVideoInfoList := models.GetRawVideoByList(vidList)
+	this.Data["json"] = rawVideoInfoList
 	this.ServeJSON()
 }
 
@@ -38,34 +40,34 @@ func (this *VideoController) ShenJTLive() {
 	limit := this.Input().Get("limit")
 	page := this.Input().Get("page")
 
-	limitInt,limitErr := strconv.Atoi(limit)
+	limitInt, limitErr := strconv.Atoi(limit)
 	if limitErr != nil {
 		limitInt = 20
-		beego.Error("limit is not a number");
+		beego.Error("limit is not a number")
 	}
-	pageInt,pageErr := strconv.Atoi(page)
+	pageInt, pageErr := strconv.Atoi(page)
 	if pageErr != nil {
 		pageInt = 1
-		beego.Error("page is not a number");
+		beego.Error("page is not a number")
 	}
 	if len(yyuid) == 0 || limitInt < 1 || pageInt < 1 {
 		this.Data["json"] = "no data"
 		this.ServeJSON()
-	} else{
+	} else {
 		if versionCode != "" {
-			versionCodeInt,versionErr := strconv.Atoi(versionCode)
+			versionCodeInt, versionErr := strconv.Atoi(versionCode)
 			if versionErr != nil {
-				beego.Error("versioncode is not a number");
+				beego.Error("versioncode is not a number")
 			}
 			if versionCodeInt == 2 {
 				shenJTLiveV2()
-			}else{
-				videoInfo := models.GetVideoByUid(yyuid,limitInt,pageInt)
+			} else {
+				videoInfo := models.GetVideoByUid(yyuid, limitInt, pageInt)
 				this.Data["json"] = videoInfo
 				this.ServeJSON()
 			}
-		}else{
-			videoInfo := models.GetVideoByUid(yyuid,limitInt,pageInt)
+		} else {
+			videoInfo := models.GetVideoByUid(yyuid, limitInt, pageInt)
 			this.Data["json"] = videoInfo
 			this.ServeJSON()
 		}
@@ -74,8 +76,7 @@ func (this *VideoController) ShenJTLive() {
 
 }
 
-
-func shenJTLiveV2(){
+func shenJTLiveV2() {
 
 }
 
@@ -87,21 +88,21 @@ func shenJTLiveV2(){
 func (this *VideoController) ShenJTDetail() {
 	cacheKey := models.SHENJTDETAIL
 	vid := this.Input().Get("vid")
-	if vid != ""{
+	if vid != "" {
 		cacheKey = cacheKey + vid
 	}
-	beego.Info("神镜头获取视频详情接口["+vid+"]")
+	beego.Info("神镜头获取视频详情接口[" + vid + "]")
 	var videoInfo models.VideoInfo
-	cacheHandler,errMsg := models.GetCacheHandler()
+	cacheHandler, errMsg := models.GetCacheHandler()
 	if errMsg != nil {
 		videoInfo = models.GetByVid(vid)
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
 		if videoInfo.Vid != 0 {
-			models.SetDataIntoCache(cacheHandler,cacheKey,videoInfo,models.SHENJTDETAIL_TIMEOUT)
+			models.SetDataIntoCache(cacheHandler, cacheKey, videoInfo, models.SHENJTDETAIL_TIMEOUT)
 		}
-	}else{
+	} else {
 		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
 			beego.Info("解析有问题")
 			beego.Info(nil)
@@ -110,9 +111,9 @@ func (this *VideoController) ShenJTDetail() {
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
 			if videoInfo.Vid != 0 {
-				models.SetDataIntoCache(cacheHandler,cacheKey,videoInfo,models.SHENJTDETAIL_TIMEOUT)
+				models.SetDataIntoCache(cacheHandler, cacheKey, videoInfo, models.SHENJTDETAIL_TIMEOUT)
 			}
-		}else{
+		} else {
 			beego.Info("数据从缓存读取：")
 			beego.Info(videoInfo)
 		}
