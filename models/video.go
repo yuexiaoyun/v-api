@@ -50,19 +50,15 @@ func GetRawVideo(vid string) RawVideoInfo {
 	return rawVideo
 }
 
-func GetRawVideoByList(vidList []int) []RawVideoInfo {
+func GetRawVideoByList(vidList []int, limit int) []RawVideoInfo {
 	var rawVideo []RawVideoInfo
-	vidListLen := len(vidList)
 	var vidListStrSlice []string
 	var questionMarkSlice []string
-	for i := 0; i < vidListLen; i++ {
+	for i := 0; i < limit; i++ {
 		vidListStrSlice = append(vidListStrSlice, strconv.Itoa(vidList[i]))
 		questionMarkSlice = append(questionMarkSlice, "?")
 	}
-	beego.Info(vidListStrSlice)
-	vidListStr := strings.Join(vidListStrSlice, ",")
 	questionMarkStr := strings.Join(questionMarkSlice, ",")
-	beego.Info(vidListStr)
 	o := orm.NewOrm()
 	sql := `SELECT u.vid, u.yyuid, v.user_id, u.video_title, u.video_name, u.source_name, u.channel, u.upload_start_time, u.duration, u.cover, v.video_play_sum, v.video_support FROM  upload_list u LEFT JOIN v_video v ON u.vid = v.vid WHERE u.vid in (` + questionMarkStr + `) AND u.status != -9 AND (u.can_play=1 or u.can_play=4)`
 	num, err := o.Raw(sql, vidListStrSlice).QueryRows(&rawVideo)
