@@ -252,6 +252,7 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 		}*/
 	}
 	wg.Wait()
+	videoList = ReturnVideoInfo
 	return videoList
 }
 
@@ -398,6 +399,6 @@ func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []Vi
 			beego.Info(videoInfo)
 		}
 	}
-	videoList = append(videoList, videoInfo)
+	ReturnVideoInfo = append(ReturnVideoInfo, videoInfo)
 	wg.Done()
 }
