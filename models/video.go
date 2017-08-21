@@ -55,7 +55,7 @@ func GetRawVideoByList(vidList []int) []RawVideoInfo {
 	beego.Info(vidList)
 	vidListLen := len(vidList)
 	beego.Info(vidListLen)
-	var vidListStrSlice = make([]string, vidListLen)
+	var vidListStrSlice []string
 	for i := 0; i < vidListLen; i++ {
 		vidListStrSlice = append(vidListStrSlice, strconv.Itoa(vidList[i]))
 	}
