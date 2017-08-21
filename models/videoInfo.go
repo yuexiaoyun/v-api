@@ -213,7 +213,6 @@ func getDuration(rawVideo RawVideoInfo) string {
 	}
 }
 
-
 func getVideoCategory(rawVideo RawVideoInfo) string {
 	return GetVideoCategory(rawVideo.Channel)
 }
@@ -234,7 +233,7 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	}
 	wg.Wait()
 	videoList = ReturnVideoInfo*/
- 	rawVideoInfo := GetRawVideoByList(vidsList)
+	rawVideoInfo := GetRawVideoByList(vidsList)
 	/*for _, vid := range vidsList {
 		vidStr := strconv.Itoa(vid)
 		videoInfo := GetByVid(vidStr)
@@ -243,13 +242,16 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 			break
 		}
 	}*/
+	wg := sync.WaitGroup{}
 	for _, rawVideoInfo := range rawVideoInfo {
-		videoInfo := GetByRawVideoInfo(rawVideoInfo)
-		videoList = append(videoList, videoInfo)
+		wg.Add(1)
+		go GetByRawVideoInfo(rawVideoInfo, &wg, videoList)
+		/*videoList = append(videoList, videoInfo)
 		if limit != 0 && len(videoList) >= limit {
 			break
-		}
+		}*/
 	}
+	wg.Wait()
 	return videoList
 }
 
@@ -367,7 +369,7 @@ func GetByVid(vid string) VideoInfo {
 	return videoInfo
 }
 
-func GetByRawVideoInfo(rawVideo RawVideoInfo) VideoInfo {
+func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []VideoInfo) {
 	cacheKey := VIDEOINFO
 	cacheKey = cacheKey + strconv.Itoa(int(rawVideo.Vid))
 	cacheHandler, errMsg := GetCacheHandler()
@@ -396,6 +398,5 @@ func GetByRawVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 			beego.Info(videoInfo)
 		}
 	}
-
-	return videoInfo
+	videoList = append(videoList, videoInfo)
 }
