@@ -233,14 +233,7 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	}
 	wg.Wait()
 	videoList = ReturnVideoInfo*/
-	rawVideoInfo := GetRawVideoByList(vidsList,limit)
-	for _, rawVideoInfo := range rawVideoInfo {
-		videoInfo := GetByRawVideoInfo(rawVideoInfo)
-		videoList = append(videoList, videoInfo)
-		if limit != 0 && len(videoList) >= limit {
-			break
-		}
-	}
+
 	/*wg := sync.WaitGroup{}
 	for _, rawVideoInfo := range rawVideoInfo {
 		wg.Add(1)
@@ -252,6 +245,26 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	}
 	wg.Wait()
 	videoList = ReturnVideoInfo*/
+
+
+
+	/*rawVideoInfo := GetRawVideoByList(vidsList,limit)
+	for _, rawVideoInfo := range rawVideoInfo {
+		videoInfo := GetByRawVideoInfo(rawVideoInfo)
+		videoList = append(videoList, videoInfo)
+		if limit != 0 && len(videoList) >= limit {
+			break
+		}
+	}*/
+
+
+	for _, vid := range vidsList {
+		videoInfo := GetByVid(strconv.Itoa(vid))
+		videoList = append(videoList, videoInfo)
+		if limit != 0 && len(videoList) >= limit {
+			break
+		}
+	}
 	return videoList
 }
 
