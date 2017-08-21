@@ -369,7 +369,7 @@ func GetByVid(vid string) VideoInfo {
 
 func GetByRawVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 	cacheKey := VIDEOINFO
-	cacheKey = cacheKey + strconv.Itoa(rawVideo.Vid)
+	cacheKey = cacheKey + strconv.Itoa(int(rawVideo.Vid))
 	cacheHandler, errMsg := GetCacheHandler()
 	var videoInfo VideoInfo
 	if errMsg != nil {
