@@ -233,7 +233,7 @@ func GetList(vidsList []int, limit int) []VideoInfo {
 	}
 	wg.Wait()
 	videoList = ReturnVideoInfo*/
-	rawVideoInfo := GetRawVideoByList(vidsList)
+	rawVideoInfo := GetRawVideoByList(vidsList,limit)
 	for _, rawVideoInfo := range rawVideoInfo {
 		videoInfo := GetByRawVideoInfo(rawVideoInfo)
 		videoList = append(videoList, videoInfo)
