@@ -52,9 +52,7 @@ func GetRawVideo(vid string) RawVideoInfo {
 
 func GetRawVideoByList(vidList []int) []RawVideoInfo {
 	var rawVideo []RawVideoInfo
-	beego.Info(vidList)
 	vidListLen := len(vidList)
-	beego.Info(vidListLen)
 	var vidListStrSlice []string
 	var questionMarkSlice []string
 	for i := 0; i < vidListLen; i++ {
