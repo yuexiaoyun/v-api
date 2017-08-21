@@ -399,4 +399,5 @@ func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []Vi
 		}
 	}
 	videoList = append(videoList, videoInfo)
+	wg.Done()
 }
