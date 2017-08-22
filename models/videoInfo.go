@@ -139,7 +139,7 @@ func getVideoInfo(rawVideo RawVideoInfo) (videoInfo VideoInfo) {
 		videoInfo.VideoDefinitions = []VideoDefinition{}
 	}
 
-	beego.Info("%p", &videoInfo)
+	fmt.Printf("%p", &videoInfo)
 	return
 }
 
@@ -358,7 +358,7 @@ func GetByVid(vid string) *VideoInfo {
 	rawVideo := GetRawVideo(vid)
 	if errMsg != nil {
 		videoInfo = getVideoInfo(*rawVideo)
-		beego.Info("%p", &videoInfo)
+		fmt.Printf("%p", &videoInfo)
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
