@@ -50,8 +50,7 @@ func GetRawVideo(vid string) *RawVideoInfo {
 	return &rawVideo
 }
 
-func GetRawVideoByList(vidList []int, limit int) []RawVideoInfo {
-	var rawVideo []RawVideoInfo
+func GetRawVideoByList(vidList []int, limit int) (rawVideo []RawVideoInfo) {
 	var vidListStrSlice []string
 	var questionMarkSlice []string
 	for i := 0; i < limit; i++ {
@@ -65,7 +64,7 @@ func GetRawVideoByList(vidList []int, limit int) []RawVideoInfo {
 	if err == nil {
 		beego.Info("rawVideo nums: ", num)
 	}
-	return rawVideo
+	return
 }
 
 /**
@@ -96,14 +95,13 @@ func GetVidsByUid(uid string, limit int, page int) (vidIntList []int) {
 	*返回数组[vid,vid,vid,...]格式
 	*获取账号下的打点视频
 **/
-func GetDotVidByUid(uid string, limit int, page int) []int {
+func GetDotVidByUid(uid string, limit int, page int) (vidIntList []int) {
 	var vidList []orm.Params
 	o := orm.NewOrm()
 	start := (page - 1) * limit
 	sql := `SELECT vid FROM upload_list WHERE  yyuid =? and source_client in (14,16) and can_play=1 and status!=-9  ORDER BY upload_start_time DESC LIMIT ?,?`
 	o.Raw(sql, uid, start, limit).Values(&vidList)
 
-	var vidIntList []int
 	for _, vidMap := range vidList {
 		vid := fmt.Sprint(vidMap["vid"])
 		vidInt, err := strconv.Atoi(vid)
@@ -114,7 +112,7 @@ func GetDotVidByUid(uid string, limit int, page int) []int {
 			beego.Error("类型判断失败")
 		}
 	}
-	return vidIntList
+	return
 }
 
 /*func GetDiyVidByUid(uid string, limit int, page int) []string {

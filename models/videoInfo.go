@@ -273,6 +273,7 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo {
 	if errMsg == nil {
 		if _, _, e := cacheHandler.Get(cacheKey, &videoInfoList); e != nil {
 			videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
+			fmt.Printf("%p", &videoInfoList)
 			beego.Info("[GetVideoByUid]数据从表读取：")
 			beego.Info(videoInfoList)
 			//判断结构vid是否为空，不空，设置缓存
@@ -287,18 +288,20 @@ func GetVideoByUid(yyuid string, limit int, page int) []VideoInfo {
 	} else {
 		beego.Error("[GetVideoByUid]获取缓存句柄失败")
 		videoInfoList = GetVideoByUidFromDB(yyuid, limit, page)
+		fmt.Printf("%p", &videoInfoList)
 	}
 	return videoInfoList
 
 }
 
-func GetVideoByUidFromDB(yyuid string, limit int, page int) []VideoInfo {
+func GetVideoByUidFromDB(yyuid string, limit int, page int) (videoInfoList []VideoInfo) {
 	liveVids := GetDotVidByUid(yyuid, limit, page)
 	uploadVids := GetVidsByUid(yyuid, limit, page)
 	var vidsIntList []int
 	vidsIntList = mergeAndSort(liveVids, uploadVids)
-	videoInfoList := GetList(vidsIntList, 20)
-	return videoInfoList
+	videoInfoList = GetList(vidsIntList, 20)
+	fmt.Printf("%p", &videoInfoList)
+	return
 }
 
 func mergeAndSort(liveVids []int, uploadVids []int) []int {
