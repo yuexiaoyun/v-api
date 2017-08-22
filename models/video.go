@@ -42,12 +42,11 @@ type RawVideoInfo struct {
 	VideoSupport    int64 `orm:"column(video_support)"`
 }
 
-func GetRawVideo(vid string) *RawVideoInfo {
-	var rawVideo RawVideoInfo
+func GetRawVideo(vid string) (rawVideo *RawVideoInfo) {
 	o := orm.NewOrm()
 	sql := `SELECT u.vid, u.yyuid, v.user_id, u.video_title, u.video_name, u.source_name, u.channel, u.upload_start_time, u.duration, u.cover, v.video_play_sum, v.video_support FROM  upload_list u LEFT JOIN v_video v ON u.vid = v.vid WHERE u.vid=? AND u.status != -9 AND (u.can_play=1 or u.can_play=4)  LIMIT 1`
 	o.Raw(sql, vid).QueryRow(&rawVideo)
-	return &rawVideo
+	return
 }
 
 func GetRawVideoByList(vidList []int, limit int) (rawVideo []RawVideoInfo) {

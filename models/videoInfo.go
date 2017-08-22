@@ -49,13 +49,13 @@ type RetUserInfo struct {
 	user_homepage string
 }
 
-func getTitle(rawVideo RawVideoInfo) string {
+func getTitle(rawVideo *RawVideoInfo) string {
 	var title string
 	title = rawVideo.VideoTitle
 	return title
 }
 
-func getVideoChannel(rawVideo RawVideoInfo) string {
+func getVideoChannel(rawVideo *RawVideoInfo) string {
 	channel := rawVideo.Channel
 	if channel == "" {
 		channel = "vhuyaunknown"
@@ -64,7 +64,7 @@ func getVideoChannel(rawVideo RawVideoInfo) string {
 }
 
 //TODO 年周的计算方法有点繁琐，找时间改进
-func getVideoCover(rawVideo RawVideoInfo) string {
+func getVideoCover(rawVideo *RawVideoInfo) string {
 	var cover string
 	if len(rawVideo.Cover) == 0 {
 		yearStr, weekStr := getYearAndWeek(rawVideo.UploadStartTime)
@@ -76,7 +76,7 @@ func getVideoCover(rawVideo RawVideoInfo) string {
 }
 
 //TODO 年周的计算方法有点繁琐，找时间改进
-func getVideoCoverBySize(rawVideo RawVideoInfo, width string, height string) string {
+func getVideoCoverBySize(rawVideo *RawVideoInfo, width string, height string) string {
 	var cover string
 	yearStr, weekStr := getYearAndWeek(rawVideo.UploadStartTime)
 	cover = beego.AppConfig.String("videoCoverPotocal") + beego.AppConfig.String("videoCoverDomain") + "/" + yearStr + weekStr + "/" + strconv.FormatInt(rawVideo.Vid, 10) + "/4-" + width + "x" + height + ".jpg"
@@ -84,7 +84,7 @@ func getVideoCoverBySize(rawVideo RawVideoInfo, width string, height string) str
 }
 
 //TODO 年周的计算方法有点繁琐，找时间改进
-func getVideoBigCover(rawVideo RawVideoInfo) string {
+func getVideoBigCover(rawVideo *RawVideoInfo) string {
 	var cover string
 	yearStr, weekStr := getYearAndWeek(rawVideo.UploadStartTime)
 	cover = beego.AppConfig.String("videoCoverPotocal") + beego.AppConfig.String("videoCoverDomain") + "/" + yearStr + weekStr + "/" + strconv.FormatInt(rawVideo.Vid, 10) + "/4-640x360.jpg"
@@ -99,7 +99,7 @@ func getYearAndWeek(timestamp int64) (string, string) {
 	return fmt.Sprintf("%02d", year), fmt.Sprintf("%02d", week)
 }
 
-func getVideoInfo(rawVideo RawVideoInfo) (videoInfo VideoInfo) {
+func getVideoInfo(rawVideo *RawVideoInfo) (videoInfo *VideoInfo) {
 	rawUser, status := GetRawUser(rawVideo.Yyuid)
 	var retUserInfo RetUserInfo = RetUserInfo{}
 	if status == "ok" {
@@ -111,7 +111,7 @@ func getVideoInfo(rawVideo RawVideoInfo) (videoInfo VideoInfo) {
 		}
 	}
 
-	videoInfo = VideoInfo{
+	videoInfo = &VideoInfo{
 		Vid:               rawVideo.Vid,
 		VideoTitle:        getTitle(rawVideo),
 		VideoSubtitle:     getTitle(rawVideo),
@@ -139,18 +139,17 @@ func getVideoInfo(rawVideo RawVideoInfo) (videoInfo VideoInfo) {
 		videoInfo.VideoDefinitions = []VideoDefinition{}
 	}
 
-	fmt.Printf("%p", &videoInfo)
 	return
 }
 
-func getVideoUrl(rawVideo RawVideoInfo) string {
+func getVideoUrl(rawVideo *RawVideoInfo) string {
 	return beego.AppConfig.String("baseUrl") + "/play/" + strconv.FormatInt(rawVideo.Vid, 10) + ".html"
 }
 
-func getVideoUploadTime(rawVideo RawVideoInfo) string {
+func getVideoUploadTime(rawVideo *RawVideoInfo) string {
 	return fmt.Sprint(time.Unix(rawVideo.UploadStartTime, 0).Format("2006-01-02 03:04:05"))
 }
-func getVideoTags(rawVideo RawVideoInfo) string {
+func getVideoTags(rawVideo *RawVideoInfo) string {
 	videoTags := GetTagByVid(rawVideo.Vid)
 	var tags []string
 	for _, tag := range videoTags {
@@ -181,7 +180,7 @@ func getUserInfo(uid int64) RetUserInfo {
 	return retUserInfo
 }
 
-func getDuration(rawVideo RawVideoInfo) string {
+func getDuration(rawVideo *RawVideoInfo) string {
 	input := rawVideo.Duration
 	if input == "0" {
 		return "00:00"
@@ -215,7 +214,7 @@ func getDuration(rawVideo RawVideoInfo) string {
 	}
 }
 
-func getVideoCategory(rawVideo RawVideoInfo) string {
+func getVideoCategory(rawVideo *RawVideoInfo) string {
 	return GetVideoCategory(rawVideo.Channel)
 }
 
@@ -302,7 +301,6 @@ func GetVideoByUidFromDB(yyuid string, limit int, page int) (videoInfoList []Vid
 	var vidsIntList []int
 	vidsIntList = mergeAndSort(liveVids, uploadVids)
 	videoInfoList = GetList(vidsIntList, 20)
-	fmt.Printf("%p", &videoInfoList)
 	return
 }
 
@@ -354,10 +352,10 @@ func GetByVid(vid string) *VideoInfo {
 	cacheKey := VIDEOINFO
 	cacheKey = cacheKey + vid
 	cacheHandler, errMsg := GetCacheHandler()
-	var videoInfo VideoInfo
+	var videoInfo *VideoInfo
 	rawVideo := GetRawVideo(vid)
 	if errMsg != nil {
-		videoInfo = getVideoInfo(*rawVideo)
+		videoInfo = getVideoInfo(rawVideo)
 		fmt.Printf("%p", &videoInfo)
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
@@ -369,7 +367,7 @@ func GetByVid(vid string) *VideoInfo {
 		if _, _, e := cacheHandler.Get(cacheKey, &videoInfo); e != nil {
 			beego.Info("解析有问题")
 			beego.Info(e)
-			videoInfo = getVideoInfo(*rawVideo)
+			videoInfo = getVideoInfo(rawVideo)
 			beego.Info("数据从表读取：")
 			beego.Info(videoInfo)
 			//判断结构vid是否为空，不空，设置缓存
@@ -382,7 +380,7 @@ func GetByVid(vid string) *VideoInfo {
 		}
 	}
 
-	return &videoInfo
+	return videoInfo
 }
 
 /*func GetByRawVideoInfo(rawVideo RawVideoInfo, wg *sync.WaitGroup, videoList []VideoInfo) {
@@ -418,11 +416,11 @@ func GetByVid(vid string) *VideoInfo {
 	wg.Done()
 }*/
 
-func GetByRawVideoInfo(rawVideo RawVideoInfo) VideoInfo {
+func GetByRawVideoInfo(rawVideo *RawVideoInfo) *VideoInfo {
 	cacheKey := VIDEOINFO
 	cacheKey = cacheKey + strconv.Itoa(int(rawVideo.Vid))
 	cacheHandler, errMsg := GetCacheHandler()
-	var videoInfo VideoInfo
+	var videoInfo *VideoInfo
 	if errMsg != nil {
 		videoInfo = getVideoInfo(rawVideo)
 		beego.Info("数据从表读取：")
