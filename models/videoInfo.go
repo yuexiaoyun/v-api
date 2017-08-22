@@ -99,7 +99,7 @@ func getYearAndWeek(timestamp int64) (string, string) {
 	return fmt.Sprintf("%02d", year), fmt.Sprintf("%02d", week)
 }
 
-func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
+func getVideoInfo(rawVideo RawVideoInfo) (videoInfo VideoInfo) {
 	rawUser, status := GetRawUser(rawVideo.Yyuid)
 	var retUserInfo RetUserInfo = RetUserInfo{}
 	if status == "ok" {
@@ -111,7 +111,7 @@ func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 		}
 	}
 
-	videoInfo := VideoInfo{
+	videoInfo = VideoInfo{
 		Vid:               rawVideo.Vid,
 		VideoTitle:        getTitle(rawVideo),
 		VideoSubtitle:     getTitle(rawVideo),
@@ -138,7 +138,9 @@ func getVideoInfo(rawVideo RawVideoInfo) VideoInfo {
 	} else {
 		videoInfo.VideoDefinitions = []VideoDefinition{}
 	}
-	return videoInfo
+
+	beego.Info("%p", &videoInfo)
+	return
 }
 
 func getVideoUrl(rawVideo RawVideoInfo) string {
@@ -356,6 +358,7 @@ func GetByVid(vid string) *VideoInfo {
 	rawVideo := GetRawVideo(vid)
 	if errMsg != nil {
 		videoInfo = getVideoInfo(*rawVideo)
+		beego.Info("%p", &videoInfo)
 		beego.Info("数据从表读取：")
 		beego.Info(videoInfo)
 		//判断结构vid是否为空，不空，设置缓存
